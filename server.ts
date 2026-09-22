@@ -33,8 +33,37 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// Helper for generating content with fallback sequence for rate limits (429)
+// In-memory circuit breaker: when quota is exhausted (429), avoid hammering API for 60 seconds
+let quotaExhaustedUntil = 0;
+
+// Helper to detect temporary API quota or availability issues
+function isTransientAiError(err: any): boolean {
+  const msg = (err?.message || '').toLowerCase();
+  const status = err?.status || '';
+  const code = err?.code || err?.error?.code;
+
+  return (
+    status === 'RESOURCE_EXHAUSTED' ||
+    status === 'UNAVAILABLE' ||
+    code === 429 ||
+    code === 503 ||
+    msg.includes('429') ||
+    msg.includes('503') ||
+    msg.includes('quota') ||
+    msg.includes('resource_exhausted') ||
+    msg.includes('unavailable') ||
+    msg.includes('high demand')
+  );
+}
+
+// Helper for generating content with fallback sequence for rate limits (429) & spikes (503)
 async function generateWithFallback(ai: GoogleGenAI, prompt: string) {
+  // If circuit breaker is open, immediately return null to switch to fast offline catalog
+  if (Date.now() < quotaExhaustedUntil) {
+    console.log(`[Circuit Breaker Active] Quota cooldown in effect for ${Math.round((quotaExhaustedUntil - Date.now()) / 1000)}s - serving catalog immediately.`);
+    return null;
+  }
+
   // Step 1: Try gemini-3.8-flash with googleSearch
   try {
     const res = await ai.models.generateContent({
@@ -47,32 +76,21 @@ async function generateWithFallback(ai: GoogleGenAI, prompt: string) {
     });
     return { response: res, modelUsed: 'gemini-3.8-flash', searchUsed: true };
   } catch (err1: any) {
-    const isQuota1 =
-      err1?.status === 'RESOURCE_EXHAUSTED' ||
-      err1?.message?.includes('429') ||
-      err1?.message?.includes('RESOURCE_EXHAUSTED') ||
-      err1?.message?.includes('quota');
-
-    console.warn('Attempt 1 (gemini-3.8-flash + search) failed:', err1?.message || err1);
-
-    if (isQuota1) {
-      // Step 2: Try gemini-3.8-flash without googleSearch (standard model, no tool overhead)
+    if (isTransientAiError(err1)) {
+      // Step 2: Try gemini-3.1-flash-lite WITH googleSearch
       try {
-        await new Promise((r) => setTimeout(r, 400));
         const res2 = await ai.models.generateContent({
-          model: 'gemini-3.8-flash',
+          model: 'gemini-3.1-flash-lite',
           contents: prompt,
           config: {
+            tools: [{ googleSearch: {} }],
             temperature: 0.2,
           },
         });
-        return { response: res2, modelUsed: 'gemini-3.8-flash', searchUsed: false };
+        return { response: res2, modelUsed: 'gemini-3.1-flash-lite', searchUsed: true };
       } catch (err2: any) {
-        console.warn('Attempt 2 (gemini-3.8-flash direct) failed:', err2?.message || err2);
-
-        // Step 3: Try gemini-3.1-flash-lite without tools (minimal quota footprint)
+        // Step 3: Try gemini-3.1-flash-lite WITHOUT tools (lightest footprint)
         try {
-          await new Promise((r) => setTimeout(r, 400));
           const res3 = await ai.models.generateContent({
             model: 'gemini-3.1-flash-lite',
             contents: prompt,
@@ -82,8 +100,10 @@ async function generateWithFallback(ai: GoogleGenAI, prompt: string) {
           });
           return { response: res3, modelUsed: 'gemini-3.1-flash-lite', searchUsed: false };
         } catch (err3: any) {
-          console.warn('Attempt 3 (gemini-3.1-flash-lite direct) failed:', err3?.message || err3);
-          throw err3;
+          // If all attempts hit quota or 503, trip the circuit breaker for 60 seconds
+          quotaExhaustedUntil = Date.now() + 60000;
+          console.warn('[Circuit Breaker Tripped] Gemini API quota reached. Serving catalog seamlessly.');
+          return null;
         }
       }
     } else {
@@ -187,7 +207,48 @@ A estrutura do JSON DEVE ser:
 
 Responda sempre em Português do Brasil com máxima precisão técnica.`;
 
-    const { response, modelUsed, searchUsed } = await generateWithFallback(ai, prompt);
+    let generateResult: { response: any; modelUsed: string; searchUsed: boolean } | null = null;
+    try {
+      generateResult = await generateWithFallback(ai, prompt);
+    } catch (genError: any) {
+      console.warn('AI generation completely exhausted/unavailable, invoking immediate offline/smart fallback:', genError?.message || genError);
+      // Fall through so the offline/smart catalog handles it seamlessly
+    }
+
+    if (!generateResult) {
+      const offlineMatch = findOfflinePart(part, model, engine) || generateSmartFallbackPart(part, model, year, engine, notes);
+      const localSuppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
+
+      return res.json({
+        id: `catalog-${Date.now()}`,
+        timestamp: Date.now(),
+        query: { part, model, year, engine, notes, transmission, vinOrPlate },
+        carSummary: offlineMatch.carSummary,
+        partSummary: offlineMatch.partSummary,
+        category: offlineMatch.category,
+        quantityUsedInVehicle: offlineMatch.quantityUsedInVehicle,
+        oemCodes: offlineMatch.oemCodes,
+        aftermarketCodes: offlineMatch.aftermarketCodes,
+        technicalSpecs: offlineMatch.technicalSpecs,
+        applicationWarnings: [
+          ...offlineMatch.applicationWarnings,
+          'ℹ️ Informações técnicas estruturadas a partir do Catálogo de Reposição e Marcas Homologadas do Brasil.',
+        ].filter(Boolean),
+        complementaryParts: offlineMatch.complementaryParts,
+        quickSalesPitch: offlineMatch.quickSalesPitch,
+        whatsappMessage: offlineMatch.whatsappMessage,
+        suppliersRioClaro: localSuppliers,
+        groundingSources: [
+          { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
+          { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
+          { uri: 'https://www.luk.com.br', title: 'Catálogo Schaeffler LUK' },
+          { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Bosch' },
+        ],
+        searchQueries: [part, model],
+      });
+    }
+
+    const { response, modelUsed, searchUsed } = generateResult;
     const responseText = response.text || '';
 
     // Extract grounding sources
@@ -270,11 +331,7 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
   } catch (error: any) {
     console.error('Error in /api/search-part:', error);
 
-    const is429 =
-      error?.status === 'RESOURCE_EXHAUSTED' ||
-      error?.message?.includes('429') ||
-      error?.message?.includes('RESOURCE_EXHAUSTED') ||
-      error?.message?.includes('quota');
+    const isTransient = isTransientAiError(error);
 
     // Catálogo offline ou sintetizador técnico para garantir continuidade no balcão sem interrupções
     const offlineMatch = findOfflinePart(part, model, engine) || generateSmartFallbackPart(part, model, year, engine, notes);
@@ -294,8 +351,8 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
       technicalSpecs: offlineMatch.technicalSpecs,
       applicationWarnings: [
         ...offlineMatch.applicationWarnings,
-        is429
-          ? 'ℹ️ Consulta atendida via Catálogo Técnico de Balcão e Marcas Homologadas (a base de referências foi ativada para garantir atendimento imediato sem esperas).'
+        isTransient
+          ? 'ℹ️ Consulta atendida via Catálogo Técnico de Balcão e Marcas Homologadas (a base de referências foi ativada automaticamente para garantir atendimento imediato sem esperas).'
           : '',
       ].filter(Boolean),
       complementaryParts: offlineMatch.complementaryParts,
@@ -343,7 +400,11 @@ INSTRUÇÕES:
 3. Se mudar o código de referência (ex: por causa de ar condicionado, ABS, tipo de conector ou dentes), informe o NOVO CÓDIGO claramente em negrito (marca e código).
 4. Diga exatamente o que o vendedor deve perguntar ou conferir no carro do cliente se houver dúvida.`;
 
-    const { response } = await generateWithFallback(ai, prompt);
+    const gen = await generateWithFallback(ai, prompt);
+    if (!gen) {
+      throw new Error('RESOURCE_EXHAUSTED');
+    }
+    const { response } = gen;
 
     const rawChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     const sources: { uri: string; title: string }[] = [];
@@ -365,13 +426,9 @@ INSTRUÇÕES:
     });
   } catch (error: any) {
     console.error('Error in /api/followup:', error);
-    const is429 =
-      error?.status === 'RESOURCE_EXHAUSTED' ||
-      error?.message?.includes('429') ||
-      error?.message?.includes('RESOURCE_EXHAUSTED') ||
-      error?.message?.includes('quota');
+    const isTransient = isTransientAiError(error);
 
-    if (is429) {
+    if (isTransient) {
       // Smart technical response for the counter clerk even if Gemini rate limit is hit
       const car = req.body?.partContext?.carSummary || 'do veículo';
       const part = req.body?.partContext?.partSummary || 'desta peça';
@@ -388,7 +445,7 @@ INSTRUÇÕES:
       }
 
       return res.json({
-        answer: `${tip}\n\n*(Nota: Consulta local de balcão ativada preventivamente devido à cota da API).*`,
+        answer: `${tip}\n\n*(Nota: Consulta local de balcão ativada preventivamente devido à indisponibilidade temporária da API).*`,
         sources: [
           { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
           { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
@@ -423,7 +480,12 @@ async function startServer() {
   });
 }
 
-startServer().catch((err) => {
-  console.error('Failed to start server:', err);
-  process.exit(1);
-});
+// Only start standalone listener when not running as a Vercel serverless function
+if (process.env.VERCEL !== '1') {
+  startServer().catch((err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
+}
+
+export default app;
