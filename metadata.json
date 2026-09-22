@@ -1,0 +1,6 @@
+{
+  "name": "Busca Peças IA",
+  "description": "Sistema de busca e referência de autopeças para atendimento via balcão e telefone com Google AI e pesquisa na web.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
