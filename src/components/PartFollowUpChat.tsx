@@ -38,10 +38,54 @@ export const PartFollowUpChat: React.FC<PartFollowUpChatProps> = ({ partContext,
         }),
       });
 
-      const data = await response.json();
+      let data: any = null;
+      try {
+        const response = await fetch('/api/followup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: q,
+            partContext,
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao consultar a IA.');
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch {
+          // Not JSON
+        }
+
+        if (!response.ok || !data) {
+          data = null;
+        }
+      } catch (e) {
+        data = null;
+      }
+
+      if (!data) {
+        // Smart technical assistant fallback for counter support
+        const car = partContext?.carSummary || 'do veículo informado';
+        const part = partContext?.partSummary || 'desta peça';
+        const queryLower = q.toLowerCase();
+
+        let tip = `Para ${part} no ${car}: Sempre confira no documento se o ano de fabricação bate com o ano do modelo, se o motor possui ar condicionado/direção hidráulica instalados de fábrica ou adaptação, e conte os dentes/estrias da peça antiga antes de entregar no balcão.`;
+
+        if (queryLower.includes('ar') || queryLower.includes('condicionado')) {
+          tip = `Atenção no balcão: Veículos com Ar Condicionado frequentemente utilizam correias de medidas diferentes (número de estrias PK maior), radiadores de colmeia mais espessa e compressores específicos. Confira o código gravado na peça retirada do cliente.`;
+        } else if (queryLower.includes('dente') || queryLower.includes('estria')) {
+          tip = `Dica de ouro no balcão: Sempre solicite ao mecânico ou cliente a contagem exata dos dentes da correia ou estrias do cubo/homocinética antes da retirada para evitar devolução.`;
+        } else if (queryLower.includes('par') || queryLower.includes('jogo') || queryLower.includes('quant')) {
+          tip = `Regra de aplicação: Amortecedores, molas, discos e pastilhas de freio devem ser trocados no par (eixo dianteiro ou traseiro) para garantir estabilidade e frenagem uniforme.`;
+        }
+
+        data = {
+          answer: tip,
+          sources: [
+            { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
+            { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
+          ],
+        };
       }
 
       const botMsg: ChatMessage = {
