@@ -127,11 +127,12 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
                 {result.partSummary}
               </h1>
-              <p className="text-zinc-400 text-xs sm:text-sm mt-1 font-medium flex items-center gap-2 flex-wrap">
-                <span className="text-zinc-300 font-semibold">{result.carSummary}</span>
+              <p className="text-zinc-400 text-xs sm:text-sm mt-1.5 font-medium flex items-center gap-2 flex-wrap">
+                <span className="text-zinc-200 font-bold">{result.carSummary}</span>
                 {result.query.notes && (
-                  <span className="text-[11px] px-2 py-0.5 rounded-md bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    Obs: {result.query.notes}
+                  <span className="text-[11px] px-2.5 py-0.5 rounded-md bg-blue-950/80 border border-blue-800 text-blue-300 font-semibold flex items-center gap-1">
+                    <span>🔍 Refinamento:</span>
+                    <span>{result.query.notes}</span>
                   </span>
                 )}
               </p>

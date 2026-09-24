@@ -284,10 +284,106 @@ export const OFFLINE_CATALOG: OfflinePartRecord[] = [
     whatsappMessage: `Olá! Segue cotação do *Kit Correia Dentada + Tensor* para *VW Gol / Fox 1.0 / 1.6 EA111*:\n\n• *Original VW:* 030198119F\n• *Contitech (Continental):* CT1167K1\n• *Gates:* KS101\n• *Dayco:* KTB269\n\n⚙️ 135 dentes | HNBR de alta durabilidade\n✅ Temos a pronta entrega!`,
   },
 
-  // 4. Chevrolet Onix / Prisma - Pastilha Dianteira
+  // 4. Chevrolet Corsa G2 (Frente Montana 2002 a 2012) / Montana 1.4 e 1.8 - Pastilha Dianteira
   {
     partKeywords: ['pastilha', 'freio', 'dianteira', 'dianteiro'],
-    vehicleKeywords: ['onix', 'prisma', 'spin', 'cobalt', 'joy', '1.0', '1.4', 'spe'],
+    vehicleKeywords: ['corsa', 'montana', 'meriva', 'frente montana', 'corsa g2', 'novo corsa', 'econoflex'],
+    carSummary: 'Chevrolet Corsa G2 (Frente Montana) / Montana / Meriva 1.4 e 1.8 8V (2002 a 2012)',
+    partSummary: 'Pastilha de Freio Dianteira (Jogo 4 peças)',
+    category: 'Freios',
+    quantityUsedInVehicle: '1 jogo (contém 4 pastilhas para as 2 rodas dianteiras)',
+    oemCodes: [
+      { code: '93374246', brandOrOrigin: 'Chevrolet Genuine Parts', notes: 'Sistema Teves / Varga para Corsa Frente Montana' },
+      { code: '93399127', brandOrOrigin: 'GM Original', notes: 'Código montadora' },
+      { code: '93310931', brandOrOrigin: 'GM Genuíno', notes: 'Disco ventilado 240mm' },
+    ],
+    aftermarketCodes: [
+      {
+        brand: 'Cobreq',
+        code: 'N-360',
+        lineOrType: 'Linha Street Original com Anti-Ruído',
+        popularInBrazil: true,
+        salesVolume: 'Mais vendida',
+        tier: '1ª Linha',
+        verdictBadge: 'Melhor Custo-Benefício',
+        technicalDetails: 'Pastilha exata para Corsa Frente Montana e Montana (141.4 x 51.2 x 17.0mm) com chapa anti-ruído integrada.',
+      },
+      {
+        brand: 'Fras-le',
+        code: 'PD/58',
+        lineOrType: 'Linha Macia Confort',
+        popularInBrazil: true,
+        salesVolume: 'Mais vendida',
+        tier: '1ª Linha',
+        verdictBadge: 'Melhor em Qualidade',
+        technicalDetails: 'Composto macio de alto atrito; não vitrifica, frenagem silenciosa e excelente durabilidade dos discos.',
+      },
+      {
+        brand: 'Nakata',
+        code: 'NKF1122P',
+        lineOrType: 'Linha Segura',
+        popularInBrazil: true,
+        salesVolume: 'Média saída',
+        tier: '2ª Linha',
+        verdictBadge: 'Melhor em Durabilidade',
+        technicalDetails: 'Composto semimetálico desenvolvido rigorosamente nas medidas da pinça original do Corsa G2 / Montana.',
+      },
+      {
+        brand: 'Bosch',
+        code: '0 986 BB0 236',
+        lineOrType: 'Fórmula Cerâmica Sem Amianto',
+        popularInBrazil: true,
+        salesVolume: 'Média saída',
+        tier: '1ª Linha',
+        verdictBadge: 'Melhor em Qualidade',
+        technicalDetails: 'Frenagem silenciosa e eficiente com certificação mundial Bosch para linha GM 1.4/1.8.',
+      },
+      {
+        brand: 'Syl',
+        code: 'SYL1079',
+        lineOrType: 'Linha Reposição',
+        popularInBrazil: true,
+        salesVolume: 'Média saída',
+        tier: '2ª Linha',
+        verdictBadge: 'Opção Econômica',
+        technicalDetails: 'Excelente custo de reposição para balcão, com encaixe dimensional perfeito.',
+      },
+    ],
+    technicalSpecs: [
+      { label: 'Quantidade no Veículo', value: '1 jogo (4 pastilhas para as 2 rodas dianteiras)' },
+      { label: 'Sistema de Freio', value: 'Teves / Varga (Pinça Flutuante)' },
+      { label: 'Comprimento', value: '141.4 mm' },
+      { label: 'Altura', value: '51.2 mm' },
+      { label: 'Espessura', value: '17.0 mm (com placa)' },
+      { label: 'Chapa Anti-Ruído', value: 'Inclusa (revestimento metálico/emborrachado)' },
+      { label: 'Diâmetro do Disco Compatível', value: '240 mm (Disco Ventilado ou Sólido)' },
+      { label: 'Código Cobreq Homologado', value: 'N-360 (Atenção: Não confundir com N-382 do Onix)' },
+    ],
+    applicationWarnings: [
+      'ATENÇÃO CRÍTICA DE BALCÃO: Para o Corsa Geração 2 (Frente Montana 2002 a 2012) e Montana 1.4/1.8, a pastilha correta é COBREQ N-360 (Fras-le PD/58).',
+      'NUNCA venda Cobreq N-382 (que é exclusiva para Onix, Prisma e Cobalt moderno).',
+      'NUNCA venda Cobreq N-325 (que é para Corsa Classic modelo B antigo e Celta).',
+    ],
+    complementaryParts: [
+      {
+        name: 'Discos de Freio Dianteiros 240mm',
+        reason: 'Conferir rebarbas ou espessura mínima de segurança (mínimo 18.0 mm para ventilados).',
+        referenceCodes: 'Fremax BD-5002 • Hipper Freios HF-24 • TRW RCDI08560',
+      },
+      {
+        name: 'Fluido de Freio DOT 4',
+        reason: 'Substituição preventiva recomendada a cada 10.000km ou 12 meses.',
+        referenceCodes: 'Bosch 0 986 BF0 001 • Varga RCCR00050',
+      },
+    ],
+    quickSalesPitch: 'Trabalhamos com a pastilha Cobreq N-360 e Fras-le PD/58, que é a aplicação exata para o Corsa Frente Montana e Montana 1.4.',
+    whatsappMessage: `Orçamento de Roncoli - Chevrolet Corsa Frente Montana 1.4 2012\n\nOlá! Segue a especificação da pastilha de freio dianteira para o seu veículo:\n\nOpção 1\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (1 jogo com 4 peças)\n✅ Marca Recomendada: Cobreq (Original de montadora)\n✅ Código: N-360\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] o jogo.\n\nOpção 2\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (1 jogo com 4 peças)\n✅ Marca Recomendada: Fras-le\n✅ Código: PD/58\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] o jogo.\n\n⚠️ Dica do Especialista: No Corsa Frente Montana e Montana, a pastilha correta é a Cobreq N-360 (não serve a N-382 do Onix). Conferir a espessura do disco de freio na troca.\n\nQualquer dúvida, estou à disposição!`,
+  },
+
+  // 5. Chevrolet Onix / Prisma - Pastilha Dianteira
+  {
+    partKeywords: ['pastilha', 'freio', 'dianteira', 'dianteiro'],
+    vehicleKeywords: ['onix', 'prisma', 'spin', 'cobalt', 'joy'],
     carSummary: 'Chevrolet Onix / Prisma 1.0 e 1.4 (Geração 1 / Joy 2012 a 2021)',
     partSummary: 'Pastilha de Freio Dianteira (Jogo 4 peças)',
     category: 'Freios',
@@ -773,7 +869,7 @@ export const OFFLINE_CATALOG: OfflinePartRecord[] = [
   },
 ];
 
-export function findOfflinePart(part: string, model: string, engine?: string): OfflinePartRecord | null {
+export function findOfflinePart(part: string, model: string, engine?: string, notes?: string): OfflinePartRecord | null {
   const norm = (str: string) =>
     str
       .toLowerCase()
@@ -782,7 +878,7 @@ export function findOfflinePart(part: string, model: string, engine?: string): O
       .replace(/[^a-z0-9]/g, ' ');
 
   const pNorm = norm(part);
-  const mNorm = norm(model + ' ' + (engine || ''));
+  const mNorm = norm(`${model} ${engine || ''} ${notes || ''}`);
 
   let bestMatch: OfflinePartRecord | null = null;
   let highestScore = 0;
@@ -796,14 +892,24 @@ export function findOfflinePart(part: string, model: string, engine?: string): O
     }
 
     let vehicleMatches = 0;
+    let hasModelMatch = false;
+
     for (const kw of record.vehicleKeywords) {
-      if (mNorm.includes(norm(kw))) {
-        vehicleMatches++;
+      const nkw = norm(kw);
+      if (mNorm.includes(nkw)) {
+        // Se a palavra-chave for o nome do modelo/geração (ex: 'corsa', 'frente montana', 'onix')
+        if (nkw.includes(' ') || nkw.length > 3) {
+          hasModelMatch = true;
+          vehicleMatches += nkw.includes(' ') ? 5 : 3;
+        } else {
+          vehicleMatches += 1;
+        }
       }
     }
 
-    if (partMatches > 0 && vehicleMatches > 0) {
-      const score = partMatches * 2 + vehicleMatches;
+    // Só considera se houver match da peça E pelo menos um match relevante de veículo
+    if (partMatches > 0 && vehicleMatches > 0 && hasModelMatch) {
+      const score = partMatches * 3 + vehicleMatches;
       if (score > highestScore) {
         highestScore = score;
         bestMatch = record;
@@ -903,6 +1009,82 @@ export function generateSmartFallbackPart(
   }
 
   if (pNorm.includes('pastilha') || pNorm.includes('freio')) {
+    const fullSearchStr = `${model} ${notes || ''}`.toLowerCase();
+    if (fullSearchStr.includes('corsa') && (fullSearchStr.includes('montana') || fullSearchStr.includes('1.4') || fullSearchStr.includes('2012') || fullSearchStr.includes('g2'))) {
+      return {
+        partKeywords: ['pastilha', 'freio'],
+        vehicleKeywords: ['corsa', 'montana'],
+        carSummary: mClean,
+        partSummary: 'Pastilha de Freio Dianteira (Jogo 4 peças)',
+        category: 'Freios',
+        quantityUsedInVehicle: '1 jogo (contém 4 pastilhas para as 2 rodas dianteiras)',
+        oemCodes: [
+          { code: '93374246', brandOrOrigin: 'Chevrolet Genuine Parts', notes: 'Sistema Teves / Varga para Corsa Frente Montana' },
+          { code: '93399127', brandOrOrigin: 'GM Original', notes: 'Código montadora' },
+        ],
+        aftermarketCodes: [
+          {
+            brand: 'Cobreq',
+            code: 'N-360',
+            lineOrType: 'Linha Street Original com Anti-Ruído',
+            popularInBrazil: true,
+            salesVolume: 'Mais vendida',
+            tier: '1ª Linha',
+            verdictBadge: 'Melhor Custo-Benefício',
+            technicalDetails: 'Pastilha exata para Corsa Frente Montana e Montana (141.4 x 51.2 x 17.0mm) com chapa anti-ruído integrada.',
+          },
+          {
+            brand: 'Fras-le',
+            code: 'PD/58',
+            lineOrType: 'Linha Macia Confort',
+            popularInBrazil: true,
+            salesVolume: 'Mais vendida',
+            tier: '1ª Linha',
+            verdictBadge: 'Melhor em Qualidade',
+            technicalDetails: 'Fórmula macia de alto atrito; não vitrifica, frenagem silenciosa e preservação dos discos.',
+          },
+          {
+            brand: 'Nakata',
+            code: 'NKF1122P',
+            lineOrType: 'Linha Segura',
+            popularInBrazil: true,
+            salesVolume: 'Média saída',
+            tier: '2ª Linha',
+            verdictBadge: 'Melhor em Durabilidade',
+            technicalDetails: 'Desenvolvida rigorosamente para o sistema de pinça original do Corsa Frente Montana.',
+          },
+          {
+            brand: 'Bosch',
+            code: '0 986 BB0 236',
+            lineOrType: 'Fórmula Cerâmica Sem Amianto',
+            popularInBrazil: true,
+            salesVolume: 'Média saída',
+            tier: '1ª Linha',
+            verdictBadge: 'Melhor em Qualidade',
+            technicalDetails: 'Certificação mundial Bosch; sem ruído ou trepidação.',
+          },
+        ],
+        technicalSpecs: [
+          { label: 'Quantidade no Veículo', value: '1 jogo (4 pastilhas para as 2 rodas dianteiras)' },
+          { label: 'Sistema de Freio', value: 'Teves / Varga (Pinça Flutuante)' },
+          { label: 'Comprimento', value: '141.4 mm' },
+          { label: 'Altura', value: '51.2 mm' },
+          { label: 'Espessura', value: '17.0 mm (com placa)' },
+          { label: 'Chapa Anti-Ruído', value: 'Inclusa (revestimento anti-ruído)' },
+          { label: 'Código Cobreq Homologado', value: 'N-360 (Atenção: Não confundir com N-382 do Onix)' },
+        ],
+        applicationWarnings: [
+          'ATENÇÃO CRÍTICA: No Corsa Frente Montana e Montana 1.4, a pastilha correta é Cobreq N-360 (Fras-le PD/58). Não utilize Cobreq N-382 (que é de Onix/Prisma) nem N-325 (que é de Corsa Classic antigo/Celta).',
+        ],
+        complementaryParts: [
+          { name: 'Discos de Freio Dianteiros 240mm', reason: 'Substituição preventiva se houver desgaste irregular.', referenceCodes: 'Fremax BD-5002 • Hipper Freios HF-24' },
+          { name: 'Fluido de Freio DOT 4', reason: 'Troca preventiva.', referenceCodes: 'Bosch 0 986 BF0 001' },
+        ],
+        quickSalesPitch: 'Trabalhamos com a pastilha Cobreq N-360 e Fras-le PD/58, aplicação exata para o Corsa Frente Montana 1.4.',
+        whatsappMessage: `Orçamento de Roncoli - Chevrolet Corsa Frente Montana 1.4 2012\n\nOlá! Segue a especificação da pastilha de freio dianteira para o seu veículo:\n\nOpção 1\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (4 peças)\n✅ Marca Recomendada: Cobreq (Original de montadora)\n✅ Código: N-360\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] o jogo.\n\nOpção 2\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (4 peças)\n✅ Marca Recomendada: Fras-le\n✅ Código: PD/58\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] o jogo.\n\n⚠️ Dica do Especialista: No Corsa Frente Montana e Montana, a pastilha correta é a Cobreq N-360 (não serve a N-382 do Onix). Conferir a espessura do disco de freio na troca.\n\nQualquer dúvida, estou à disposição!`,
+      };
+    }
+
     return {
       partKeywords: ['pastilha', 'freio'],
       vehicleKeywords: [model.toLowerCase()],

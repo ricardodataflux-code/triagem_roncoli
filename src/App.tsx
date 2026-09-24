@@ -105,7 +105,7 @@ export default function App() {
       // If backend failed or was unreachable, immediately resolve via offline/smart catalog
       if (!data) {
         const offlineMatch =
-          findOfflinePart(request.part, request.model, request.engine) ||
+          findOfflinePart(request.part, request.model, request.engine, request.notes) ||
           generateSmartFallbackPart(request.part, request.model, request.year, request.engine, request.notes);
         const suppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
 

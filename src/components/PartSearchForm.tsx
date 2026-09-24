@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Car, Wrench, Calendar, Cpu, AlertCircle, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import { Search, Car, Wrench, Calendar, Cpu, AlertCircle, ChevronDown, ChevronUp, Zap, Sliders, Info } from 'lucide-react';
 import { SearchRequest } from '../types';
 import { POPULAR_PRESETS, POPULAR_PARTS_SUGGESTIONS, CarPreset } from '../data/presets';
 
@@ -230,7 +230,38 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
           </div>
         </div>
 
-        {/* Collapsible: Advanced details */}
+        {/* Row 3: Outras Informações / Detalhes para Refinamento da Busca (Sempre Visível) */}
+        <div>
+          <label className="block text-xs font-bold uppercase tracking-wider mb-1.5 flex items-center justify-between text-zinc-800 dark:text-zinc-200">
+            <span className="flex items-center gap-1.5">
+              <Sliders className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              Outras Informações / Detalhes para Refinamento
+            </span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 font-semibold">
+              Refinamento de Precisão
+            </span>
+          </label>
+          <input
+            id="input-other-notes"
+            type="text"
+            value={formData.notes || ''}
+            onChange={(e) => handleInputChange('notes', e.target.value)}
+            placeholder="Ex: Frente Montana, Sistema Teves, Disco Ventilado 240mm, Com ABS, Com Ar Condicionado, Código gravado na peça..."
+            className={`w-full px-4 py-2.5 rounded-xl border text-sm font-medium transition-all focus:outline-none focus:ring-1 focus:ring-blue-600 dark:focus:ring-blue-400 ${
+              darkMode
+                ? 'bg-zinc-900/80 border-zinc-700/80 text-white placeholder-zinc-500 focus:border-blue-500'
+                : 'bg-zinc-50/50 border-zinc-300 text-zinc-900 placeholder-zinc-400 focus:border-blue-600 focus:bg-white'
+            }`}
+          />
+          <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1">
+            <Info className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
+            <span>
+              Informe submodelos (ex: <strong>frente montana</strong>), sistema de freio (ex: <strong>Teves ou Varga</strong>), diâmetro de disco ou código gravado para conferência exata.
+            </span>
+          </p>
+        </div>
+
+        {/* Collapsible: Additional Fields (Câmbio e Placa/Chassi) */}
         <div className="pt-1">
           <button
             type="button"
@@ -238,11 +269,11 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
             className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white flex items-center gap-1.5 transition-colors"
           >
             {showAdvanced ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            {showAdvanced ? 'Ocultar especificações adicionais' : '+ Especificações adicionais (Câmbio, Ar, Lado, Placa)'}
+            {showAdvanced ? 'Ocultar Câmbio e Placa' : '+ Mais campos opcionais (Câmbio / Transmissão e Placa/Chassi)'}
           </button>
 
           {showAdvanced && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 animate-fadeIn">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 animate-fadeIn">
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-zinc-700 dark:text-zinc-300">
                   Câmbio / Transmissão
@@ -251,7 +282,7 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
                   type="text"
                   value={formData.transmission || ''}
                   onChange={(e) => handleInputChange('transmission', e.target.value)}
-                  placeholder="Ex: Manual 5 marchas, Automático, CVT"
+                  placeholder="Ex: Manual 5 marchas, Automático, Easytronic"
                   className={`w-full px-3 py-2 rounded-xl border text-xs font-medium transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 ${
                     darkMode
                       ? 'bg-zinc-900/80 border-zinc-700/80 text-white placeholder-zinc-500'
@@ -268,24 +299,7 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
                   type="text"
                   value={formData.vinOrPlate || ''}
                   onChange={(e) => handleInputChange('vinOrPlate', e.target.value)}
-                  placeholder="Ex: ABC-1234 ou chassi"
-                  className={`w-full px-3 py-2 rounded-xl border text-xs font-medium transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 ${
-                    darkMode
-                      ? 'bg-zinc-900/80 border-zinc-700/80 text-white placeholder-zinc-500'
-                      : 'bg-zinc-50/50 border-zinc-300 text-zinc-900 placeholder-zinc-400'
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider mb-1 text-zinc-700 dark:text-zinc-300">
-                  Observações de Balcão
-                </label>
-                <input
-                  type="text"
-                  value={formData.notes || ''}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  placeholder="Ex: Com ar condicionado, com ABS, Lado direito"
+                  placeholder="Ex: ABC-1234 ou 8 primeiros dígitos do chassi"
                   className={`w-full px-3 py-2 rounded-xl border text-xs font-medium transition-all focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 ${
                     darkMode
                       ? 'bg-zinc-900/80 border-zinc-700/80 text-white placeholder-zinc-500'

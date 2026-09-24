@@ -131,9 +131,18 @@ DADOS DO VEÍCULO E DA PEÇA INFORMADOS PELO VENDEDOR:
 - Detalhes / Observações adicionais: "${notes || 'Nenhum'}"
 - Placa ou Chassi informado: "${vinOrPlate || 'Nenhum'}"
 
-INSTRUÇÕES DE PESQUISA NA WEB:
-1. Faça uma pesquisa precisa na internet em catálogos originais (OEM) das montadoras e nas principais fabricantes de autopeças aftermarket comercializadas no Brasil.
-2. MARCAS PRIORITÁRIAS A SEREM PESQUISADAS:
+INSTRUÇÕES DE PESQUISA NA WEB & PRECISÃO DE CATÁLOGO:
+1. Faça uma pesquisa precisa na internet em catálogos originais (OEM) das montadoras e nas principais fabricantes de autopeças aftermarket comercializadas no Brasil (ex: Cobreq, Nakata, Fras-le, Bosch, Cofap, LUK, etc.).
+2. RIGIDEZ E PRECISÃO CIRÚRGICA DE CATÁLOGO (EVITAR ERROS DE BALCÃO):
+- ATENÇÃO SUPREMA AO CAMPO 'Detalhes / Observações adicionais' (notes), geração da carroceria, diâmetro de disco e sistema de freio/injeção.
+- Diferencie com precisão técnica submodelos e gerações brasileiras:
+  * Exemplo Crítico de Pastilhas de Freio Chevrolet:
+    - Chevrolet Corsa Hatch/Sedan G2 ("Frente Montana" 2002 a 2012), Montana 1.4/1.8 e Meriva: A pastilha dianteira oficial do catálogo é estritamente COBREQ N-360 / FRAS-LE PD/58 / NAKATA NKF1122P / BOSCH 0 986 BB0 236 / SYL 1079 (OEM GM 93374246). JAMAIS forneça Cobreq N-382 (que é exclusiva de Onix/Prisma/Cobalt) nem Cobreq N-325 (que é para Corsa Classic modelo B antigo / Celta).
+    - Chevrolet Onix / Prisma G1 / Cobalt / Spin: Usa Cobreq N-382 / Fras-le PD/1446.
+    - Chevrolet Corsa Classic antigo (B) / Celta: Usa Cobreq N-325 / Fras-le PD/60.
+- Se o usuário informar detalhes como 'frente montana', 'sistema teves', 'varga', 'disco 240mm', 'com ar condicionado', 'com ABS' ou código gravado na peça antiga, você DEVE priorizar e cruzar essas informações para entregar a aplicação exata sem margem de erro.
+
+3. MARCAS PRIORITÁRIAS A SEREM PESQUISADAS:
 PESQUISE E PRIORIZE EXCLUSIVAMENTE AS SEGUINTES MARCAS PRINCIPAIS (SE APLICÁVEIS À CATEGORIA DA PEÇA):
 LUK, Valeo, Sachs, Nakata, Monroe, Bosch, NGK, SKF, DS, COFAP, CONTINENTAL, DAYCO, DISAUTO, FAMA, FANIA, GATES, FLORIO, IGUAÇU, IMA, JAHU, MOBENSANI, KYB, MAHLE, THOMSON, VISCONDE, TSA, URBA, VALCLEI, ZF AFTERMARKET, VETOR, SCHADEK, BROSOL, JAMAICA, NOVO KIT, NK, DPL, TECFIL, SABO, TARANTO, MAGNETI MARELLI, SYL, COBREQ, TECPADS, WAHLER.
 
@@ -232,7 +241,7 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
   }
 
   if (!generateResult) {
-    const offlineMatch = findOfflinePart(part, model, engine) || generateSmartFallbackPart(part, model, year, engine, notes);
+    const offlineMatch = findOfflinePart(part, model, engine, notes) || generateSmartFallbackPart(part, model, year, engine, notes);
     const localSuppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
 
     return {

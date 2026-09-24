@@ -8,6 +8,17 @@ export interface CarPreset {
 
 export const POPULAR_PRESETS: CarPreset[] = [
   {
+    title: "Corsa Frente Montana 1.4 2012",
+    subtitle: "Pastilha de freio dianteira (Cobreq N-360)",
+    data: {
+      part: "Pastilha de freio dianteira",
+      model: "Chevrolet Corsa Hatch / Sedan",
+      year: "2012",
+      engine: "1.4 8V Econoflex",
+      notes: "Frente Montana, Sistema Teves / Varga, Disco ventilado 240mm",
+    },
+  },
+  {
     title: "VW Gol 1.0 Flex 2015",
     subtitle: "Bomba d'água",
     data: {
