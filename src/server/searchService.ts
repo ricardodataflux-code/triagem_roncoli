@@ -150,7 +150,28 @@ Para cada opção aftermarket identificada, forneça:
 5. Sugira peças complementares (venda casada / itens que se recomenda trocar juntos, ex: correia + tensor + bomba d'água; pastilha + disco + fluido). INCLUA OBRIGATORIAMENTE os códigos de referência das peças complementares ("referenceCodes") das marcas mais vendidas no Brasil (ex: "Fremax BD-5298 • Hipper Freios HF-24A • TRW RCDI09780").
 6. QUANTIDADE QUE VAI NO CARRO ('quantityUsedInVehicle'): Indique de forma clara e direta quantas unidades dessa peça são utilizadas no veículo pesquisado e como é vendida no balcão (ex: '2 unidades (1 lado direito + 1 lado esquerdo - recomenda-se trocar o par)', '1 jogo (contém 4 pastilhas para as 2 rodas dianteiras)', '4 unidades (1 vela por cilindro)', '3 unidades (1 vela por cilindro)', '1 unidade', '2 unidades (1 por roda)', '1 kit').
 7. Redija um resumo curto ("quickSalesPitch") de 1 ou 2 frases para o vendedor falar na hora no telefone com o cliente.
-8. Redija uma mensagem pronta e formatada para WhatsApp ("whatsappMessage") com cabeçalho, dados do carro, quantidade utilizada no carro, códigos das principais marcas e recomendação (NÃO inclua preços ou valores em dinheiro, pois a loja tem sua própria tabela de preços no balcão), pronta para o vendedor copiar e mandar direto para o cliente.
+8. Redija uma mensagem pronta e formatada para WhatsApp ("whatsappMessage") seguindo rigorosamente o seguinte modelo:
+Orçamento de Roncoli - [Modelo do Carro]
+
+Olá! Segue a especificação de [peça] para o seu veículo:
+
+Opção 1
+✅ Peça: [Nome da Peça] ([quantidade que vai no carro])
+✅ Marca Recomendada: [Marca 1ª Linha] (Original de montadora)
+✅ Código: [Código]
+✅ Preço: (deixar vazio para preenchimento manual)
+💰 Valor: R$ [Inserir Preço] [o jogo / a peça / o kit].
+
+Opção 2
+✅ Peça: [Nome da Peça] ([quantidade que vai no carro])
+✅ Marca Recomendada: [Marca Alternativa]
+✅ Código: [Código]
+✅ Preço: (deixar vazio para preenchimento manual)
+💰 Valor: R$ [Inserir Preço] [o jogo / a peça / o kit].
+
+⚠️ Dica do Especialista: [Dica técnica importante sobre aplicação ou troca preventiva]
+
+Qualquer dúvida, estou à disposição!
 
 FORMATO DE RESPOSTA OBRIGATÓRIO:
 Você DEVE retornar a resposta estritamente no formato JSON dentro de um bloco de código markdown \`\`\`json ... \`\`\`.

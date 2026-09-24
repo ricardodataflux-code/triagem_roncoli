@@ -30,17 +30,17 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo and Brand */}
         <div className="flex items-center gap-3.5">
-          <div className="w-10 h-10 rounded-xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center border border-zinc-800 dark:border-white shadow-xs">
-            <Sparkles className="w-4 h-4" />
+          <div className="w-10 h-10 rounded-xl bg-blue-600 dark:bg-blue-600 text-white flex items-center justify-center shadow-xs border border-blue-500">
+            <Sparkles className="w-4 h-4 text-emerald-300" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-zinc-950 dark:text-white">
-                Busca Peças IA
+                Triagem Roncoli
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-semibold uppercase tracking-widest px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 dark:bg-zinc-400"></span>
-                CATÁLOGO AUTOMOTIVO
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                CATÁLOGO TÉCNICO
               </span>
             </div>
             <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 tracking-tight">

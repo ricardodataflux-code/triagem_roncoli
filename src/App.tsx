@@ -246,20 +246,20 @@ export default function App() {
           </div>
         )}
 
-        {/* Error Alert (Disciplined Neutral Zinc Style) */}
+        {/* Error Alert (Strictly Semantic Red for Errors) */}
         {error && (
           <div
             className={`p-5 rounded-2xl border flex flex-col sm:flex-row items-start gap-4 transition-all ${
               darkMode
-                ? 'bg-zinc-900 border-zinc-700 text-zinc-100'
-                : 'bg-zinc-50 border-zinc-300 text-zinc-900 shadow-2xs'
+                ? 'bg-red-950/40 border-red-800 text-red-200'
+                : 'bg-red-50 border-red-300 text-red-950 shadow-2xs'
             }`}
           >
-            <div className="w-8 h-8 rounded-lg bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center shrink-0">
-              <AlertCircle className="w-4 h-4 text-zinc-700 dark:text-zinc-300" />
+            <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/60 flex items-center justify-center shrink-0 border border-red-200 dark:border-red-800">
+              <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
             <div className="space-y-2 flex-1">
-              <h4 className="text-sm font-bold">
+              <h4 className="text-sm font-bold text-red-900 dark:text-red-200">
                 {error.includes('429') || error.toLowerCase().includes('cota')
                   ? 'Limite Temporário de Cota da API (Erro 429)'
                   : 'Não foi possível consultar a peça no momento'}
@@ -274,15 +274,12 @@ export default function App() {
                   }}
                   className={`px-3 py-1.5 rounded-lg font-bold border transition-colors ${
                     darkMode
-                      ? 'bg-zinc-800 border-zinc-700 text-zinc-200 hover:bg-zinc-700'
-                      : 'bg-white border-zinc-300 text-zinc-700 hover:bg-zinc-100 shadow-2xs'
+                      ? 'bg-red-900/60 border-red-700 text-white hover:bg-red-800'
+                      : 'bg-red-600 hover:bg-red-700 text-white shadow-2xs'
                   }`}
                 >
                   Tentar novamente
                 </button>
-                <span className="text-[11px] opacity-75">
-                  • Dica: Configure sua chave própria no menu <strong>Settings &gt; Secrets</strong> para consultas ilimitadas.
-                </span>
               </div>
             </div>
           </div>

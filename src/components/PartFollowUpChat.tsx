@@ -238,7 +238,7 @@ export const PartFollowUpChat: React.FC<PartFollowUpChatProps> = ({ partContext,
           className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
             isLoading || !inputQuestion.trim()
               ? 'bg-zinc-300 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed'
-              : 'bg-zinc-950 hover:bg-black text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-950 active:scale-95 shadow-xs'
+              : 'bg-blue-600 hover:bg-blue-700 text-white active:scale-95 shadow-xs'
           }`}
         >
           <Send className="w-3.5 h-3.5" />

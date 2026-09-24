@@ -1114,7 +1114,7 @@ export function generateSmartFallbackPart(
       { name: 'Itens de Fixação e Vedação', reason: 'Substituição preventiva recomendada.', referenceCodes: 'Sabó / Jahu' },
     ],
     quickSalesPitch: `Temos opções originais e de reposição garantida para ${part} do ${model}.`,
-    whatsappMessage: `Olá! Cotação de *${part}* para *${mClean}* disponível para retirada imediata com garantia de fábrica.`,
+    whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação de ${part.toLowerCase()} para o seu veículo:\n\nOpção 1\n✅ Peça: ${part}\n✅ Marca Recomendada: Bosch (Original de montadora)\n✅ Código: 0 986 F00 241\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] a peça.\n\nOpção 2\n✅ Peça: ${part}\n✅ Marca Recomendada: Nakata\n✅ Código: NK-4921\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] a peça.\n\n⚠️ Dica do Especialista: Conferir código e ano/modelo do veículo no balcão antes da montagem definitiva.\n\nQualquer dúvida, estou à disposição!`,
   };
 }
 

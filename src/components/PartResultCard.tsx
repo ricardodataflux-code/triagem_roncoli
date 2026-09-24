@@ -21,6 +21,7 @@ import { SearchResult } from '../types';
 import { evaluateAftermarketList, EvaluatedAftermarketItem } from '../utils/brandEvaluator';
 import { getRioClaroSuppliersForPart } from '../data/rioClaroSuppliers';
 import { PartImageModal } from './PartImageModal';
+import { WhatsAppQuoteModal } from './WhatsAppQuoteModal';
 
 interface PartResultCardProps {
   result: SearchResult;
@@ -33,6 +34,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [selectedItemForImage, setSelectedItemForImage] = useState<EvaluatedAftermarketItem | null>(null);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
 
   const evaluatedAftermarketCodes = useMemo(() => {
     return evaluateAftermarketList(
@@ -144,8 +146,8 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
                 onClick={() => copyToClipboard(getAllCodesFormatted(), 'ALL')}
                 className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-2xs ${
                   copiedAll
-                    ? 'bg-zinc-800 text-white dark:bg-zinc-200 dark:text-zinc-900'
-                    : 'bg-zinc-950 hover:bg-black text-white dark:bg-zinc-100 dark:hover:bg-white dark:text-zinc-950'
+                    ? 'bg-blue-700 text-white'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white active:scale-95'
                 }`}
               >
                 {copiedAll ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -154,35 +156,28 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
             </div>
 
             <div className="flex items-center gap-2">
-              {/* WhatsApp Quick Copy (Muted Sage Green Semantic) */}
+              {/* WhatsApp Quote Builder with Multiple Choice Brands (Verde Palette) */}
               <button
-                id="btn-copy-whatsapp"
+                id="btn-open-whatsapp-modal"
                 type="button"
-                onClick={() => copyToClipboard(result.whatsappMessage, 'WHATSAPP')}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                  copiedWhatsapp
-                    ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-900'
-                    : darkMode
-                    ? 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
-                    : 'bg-white hover:bg-zinc-100 text-zinc-700 border-zinc-200 shadow-2xs'
-                }`}
-                title="Copiar mensagem formatada para WhatsApp"
+                onClick={() => setIsWhatsAppModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow-2xs active:scale-95"
+                title="Personalizar marcas e valores para enviar no WhatsApp"
               >
-                {copiedWhatsapp ? <Check className="w-3.5 h-3.5" /> : <MessageSquare className="w-3.5 h-3.5 text-zinc-500" />}
-                {copiedWhatsapp ? 'Texto WhatsApp Copiado!' : 'Copiar para WhatsApp'}
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Orçamento WhatsApp (Opções)</span>
               </button>
 
-              <a
+              <button
                 id="btn-send-whatsapp"
-                href={getWhatsappUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-800/90 hover:bg-emerald-900 text-white transition-all shadow-2xs"
-                title="Abrir WhatsApp Web com a cotação pronta"
+                type="button"
+                onClick={() => setIsWhatsAppModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-emerald-600/30 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 transition-all shadow-2xs"
+                title="Abrir cotação formatada"
               >
-                <PhoneCall className="w-3.5 h-3.5 text-emerald-200" />
+                <PhoneCall className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Enviar Cotação</span>
-              </a>
+              </button>
             </div>
           </div>
 
@@ -420,19 +415,19 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
             )}
           </div>
 
-          {/* SECTION 3: APPLICATION WARNINGS (Discipline: Zinc/Slate Neutral Tone, No Loud Yellow) */}
+          {/* SECTION 3: APPLICATION WARNINGS (Semantic Amarelo for Atenção) */}
           {result.applicationWarnings && result.applicationWarnings.length > 0 && (
             <div
               className={`p-4 sm:p-5 rounded-xl border flex items-start gap-3.5 ${
                 darkMode
-                  ? 'bg-zinc-900 border-zinc-800 text-zinc-200'
-                  : 'bg-zinc-50 border-zinc-300 text-zinc-900 shadow-2xs'
+                  ? 'bg-amber-950/30 border-amber-800 text-amber-200'
+                  : 'bg-amber-50 border-amber-300 text-amber-950 shadow-2xs'
               }`}
             >
-              <AlertTriangle className="w-4 h-4 text-zinc-600 dark:text-zinc-400 shrink-0 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
               <div className="space-y-1.5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
-                  Atenção Crítica de Balcão (Evite Trocas & Devoluções):
+                <h3 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                  ⚠️ Atenção Crítica de Balcão (Evite Trocas & Devoluções):
                 </h3>
                 <ul className="text-xs space-y-1 list-disc list-inside font-medium leading-relaxed opacity-95">
                   {result.applicationWarnings.map((warn, i) => (
@@ -675,7 +670,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              {suppliersRioClaro.map((supplier, idx) => (
+              {suppliersRioClaro.slice(0, 6).map((supplier, idx) => (
                 <div
                   key={idx}
                   className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
@@ -755,6 +750,15 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
           onClose={() => setSelectedItemForImage(null)}
         />
       )}
+
+      {/* WhatsApp Multi-Choice Quote Modal */}
+      <WhatsAppQuoteModal
+        isOpen={isWhatsAppModalOpen}
+        onClose={() => setIsWhatsAppModalOpen(false)}
+        result={result}
+        evaluatedAftermarketCodes={evaluatedAftermarketCodes}
+        darkMode={darkMode}
+      />
     </>
   );
 };

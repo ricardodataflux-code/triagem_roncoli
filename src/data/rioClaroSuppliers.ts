@@ -68,7 +68,7 @@ export const RIO_CLARO_SUPPLIERS: SupplierRioClaro[] = [
 ];
 
 export function getRioClaroSuppliersForPart(partName?: string, category?: string): SupplierRioClaro[] {
-  // Retorna fornecedores de Rio Claro-SP, garantindo alternativas ideais para a peça
+  // Retorna os melhores fornecedores e distribuidoras de Rio Claro-SP (máximo 6 lojas)
   const p = (partName || '').toLowerCase() + ' ' + (category || '').toLowerCase();
 
   // Ordena os fornecedores trazendo primeiro aqueles com especialidade relacionada
@@ -80,5 +80,5 @@ export function getRioClaroSuppliersForPart(partName?: string, category?: string
     return 0;
   });
 
-  return sorted.slice(0, 4);
+  return sorted.slice(0, 6);
 }
