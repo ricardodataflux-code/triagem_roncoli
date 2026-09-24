@@ -100,10 +100,7 @@ export default function App() {
           oemCodes: offlineMatch.oemCodes,
           aftermarketCodes: offlineMatch.aftermarketCodes,
           technicalSpecs: offlineMatch.technicalSpecs,
-          applicationWarnings: [
-            ...offlineMatch.applicationWarnings,
-            'ℹ️ Catálogo de Balcão Ativado: Consulta respondida com códigos originais e homologados do Brasil. Para consultas em tempo real com IA na Vercel, certifique-se de configurar GEMINI_API_KEY no painel da Vercel.',
-          ],
+          applicationWarnings: offlineMatch.applicationWarnings,
           complementaryParts: offlineMatch.complementaryParts,
           quickSalesPitch: offlineMatch.quickSalesPitch,
           whatsappMessage: offlineMatch.whatsappMessage,

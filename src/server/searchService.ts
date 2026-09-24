@@ -246,12 +246,7 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
       oemCodes: offlineMatch.oemCodes,
       aftermarketCodes: offlineMatch.aftermarketCodes,
       technicalSpecs: offlineMatch.technicalSpecs,
-      applicationWarnings: [
-        ...offlineMatch.applicationWarnings,
-        !ai
-          ? '💡 Nota: Chave GEMINI_API_KEY não configurada na Vercel. A pesquisa foi atendida com sucesso pelo Catálogo Técnico Interno de Balcão e Marcas Homologadas.'
-          : 'ℹ️ Informações técnicas estruturadas a partir do Catálogo de Reposição e Marcas Homologadas do Brasil.',
-      ].filter(Boolean),
+      applicationWarnings: offlineMatch.applicationWarnings,
       complementaryParts: offlineMatch.complementaryParts,
       quickSalesPitch: offlineMatch.quickSalesPitch,
       whatsappMessage: offlineMatch.whatsappMessage,
@@ -365,7 +360,7 @@ export async function executeFollowup(question: string, partContext: any) {
     }
 
     return {
-      answer: `${tip}\n\n*(Dica: Configure GEMINI_API_KEY no painel da Vercel para suporte interativo em tempo real via IA).*`,
+      answer: tip,
       sources: [
         { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
         { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
