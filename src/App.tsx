@@ -22,6 +22,20 @@ import {
 const STORAGE_KEY_HISTORY = 'autopecas_ia_history_v1';
 const STORAGE_KEY_THEME = 'autopecas_ia_theme';
 
+// Helper para remover mensagens de status de servidor ou aviso de Vercel dos alertas técnicos
+function cleanResultWarnings(item: SearchResult): SearchResult {
+  if (!item) return item;
+  return {
+    ...item,
+    applicationWarnings: (item.applicationWarnings || []).filter(
+      (w) =>
+        !w.toLowerCase().includes('catálogo de balcão') &&
+        !w.toLowerCase().includes('vercel') &&
+        !w.toLowerCase().includes('gemini_api_key')
+    ),
+  };
+}
+
 export default function App() {
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem(STORAGE_KEY_THEME);
@@ -38,7 +52,13 @@ export default function App() {
   const [history, setHistory] = useState<SearchResult[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_HISTORY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed: SearchResult[] = JSON.parse(saved);
+      const cleaned = parsed.map(cleanResultWarnings);
+      try {
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(cleaned));
+      } catch {}
+      return cleaned;
     } catch {
       return [];
     }
@@ -115,12 +135,13 @@ export default function App() {
         };
       }
 
-      setActiveResult(data);
+      const sanitizedData = cleanResultWarnings(data);
+      setActiveResult(sanitizedData);
 
       // Save to history (avoid duplicates by ID, keep max 30)
       setHistory((prev) => {
-        const filtered = prev.filter((item) => item.id !== data.id);
-        const updated = [data, ...filtered].slice(0, 30);
+        const filtered = prev.filter((item) => item.id !== sanitizedData.id);
+        const updated = [sanitizedData, ...filtered].slice(0, 30);
         try {
           localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(updated));
         } catch (e) {
@@ -131,7 +152,7 @@ export default function App() {
 
       // Smooth scroll to results
       setTimeout(() => {
-        const resultEl = document.getElementById(`result-card-${data.id}`);
+        const resultEl = document.getElementById(`result-card-${sanitizedData.id}`);
         if (resultEl) {
           resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -152,7 +173,7 @@ export default function App() {
   };
 
   const handleSelectHistoryItem = (item: SearchResult) => {
-    setActiveResult(item);
+    setActiveResult(cleanResultWarnings(item));
     setError(null);
     setTimeout(() => {
       const resultEl = document.getElementById(`result-card-${item.id}`);

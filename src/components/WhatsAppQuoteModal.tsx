@@ -105,8 +105,14 @@ export const WhatsAppQuoteModal: React.FC<WhatsAppQuoteModalProps> = ({
 
   // Dica técnica do especialista
   const specialistTip = useMemo(() => {
-    if (result.applicationWarnings && result.applicationWarnings.length > 0) {
-      return result.applicationWarnings[0];
+    const validWarnings = (result.applicationWarnings || []).filter(
+      (w) =>
+        !w.toLowerCase().includes('catálogo de balcão') &&
+        !w.toLowerCase().includes('vercel') &&
+        !w.toLowerCase().includes('gemini_api_key')
+    );
+    if (validWarnings.length > 0) {
+      return validWarnings[0];
     }
     return `Recomendamos sempre a conferência das medidas da peça antiga e a substituição por profissional qualificado para preservar a garantia.`;
   }, [result.applicationWarnings]);

@@ -52,6 +52,16 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
     return getRioClaroSuppliersForPart(result.partSummary, result.category);
   }, [result.suppliersRioClaro, result.partSummary, result.category]);
 
+  // Avisos críticos de aplicação filtrados (apenas alertas técnicos genuínos da peça)
+  const filteredWarnings = useMemo(() => {
+    return (result.applicationWarnings || []).filter(
+      (warn) =>
+        !warn.toLowerCase().includes('catálogo de balcão') &&
+        !warn.toLowerCase().includes('vercel') &&
+        !warn.toLowerCase().includes('gemini_api_key')
+    );
+  }, [result.applicationWarnings]);
+
   const copyToClipboard = (text: string, identifier: string) => {
     navigator.clipboard.writeText(text);
     if (identifier === 'ALL') {
@@ -416,7 +426,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
           </div>
 
           {/* SECTION 3: APPLICATION WARNINGS (Semantic Amarelo for Atenção) */}
-          {result.applicationWarnings && result.applicationWarnings.length > 0 && (
+          {filteredWarnings.length > 0 && (
             <div
               className={`p-4 sm:p-5 rounded-xl border flex items-start gap-3.5 ${
                 darkMode
@@ -430,7 +440,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
                   ⚠️ Atenção Crítica de Balcão (Evite Trocas & Devoluções):
                 </h3>
                 <ul className="text-xs space-y-1 list-disc list-inside font-medium leading-relaxed opacity-95">
-                  {result.applicationWarnings.map((warn, i) => (
+                  {filteredWarnings.map((warn, i) => (
                     <li key={i}>{warn}</li>
                   ))}
                 </ul>
