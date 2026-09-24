@@ -26,9 +26,6 @@ export interface CrossReference {
   persuasiveDetails?: string;
   warrantyInfo?: string;
   imageUrl?: string;
-  catalogUrl?: string;
-  officialBrandMatch?: boolean;
-  codeSyntax?: string;
 }
 
 export interface TechnicalSpec {

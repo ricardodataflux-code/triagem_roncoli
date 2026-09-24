@@ -1,5 +1,4 @@
 import { CrossReference } from '../types';
-import { getOfficialBrandCatalogUrl } from '../data/officialBrandRules';
 
 export interface EvaluatedAftermarketItem extends CrossReference {
   tier: '1ª Linha' | '2ª Linha' | '3ª Linha';
@@ -23,7 +22,6 @@ const FIRST_TIER_BRANDS = [
   'sachs',
   'zf aftermarket',
   'zf',
-  'nakata',
   'bosch',
   'ngk',
   'skf',
@@ -33,15 +31,14 @@ const FIRST_TIER_BRANDS = [
   'dayco',
   'gates',
   'kyb',
-  'monroe',
   'mahle',
   'metal leve',
+  'monroe',
   'thomson',
   'mte-thomson',
   'visconde',
   'rv visconde',
   'urba',
-  'valclei',
   'wahler',
   'sabo',
   'sabó',
@@ -58,6 +55,7 @@ const FIRST_TIER_BRANDS = [
 ];
 
 const SECOND_TIER_BRANDS = [
+  'nakata',
   'ds',
   'disauto',
   'fama',
@@ -69,6 +67,7 @@ const SECOND_TIER_BRANDS = [
   'jahu',
   'mobensani',
   'tsa',
+  'valclei',
   'vetor',
   'schadek',
   'brosol',
@@ -588,7 +587,6 @@ export function evaluateAftermarketList(
     const technicalDetails = item.technicalDetails && item.technicalDetails.length > 15 ? item.technicalDetails : generated.technicalDetails;
     const persuasiveDetails = item.persuasiveDetails && item.persuasiveDetails.length > 15 ? item.persuasiveDetails : generated.persuasiveDetails;
     const warrantyInfo = item.warrantyInfo || generated.warrantyInfo;
-    const catalogUrl = item.catalogUrl || getOfficialBrandCatalogUrl(item.brand);
 
     return {
       ...item,
@@ -599,8 +597,6 @@ export function evaluateAftermarketList(
       technicalDetails,
       persuasiveDetails,
       warrantyInfo,
-      catalogUrl,
-      officialBrandMatch: true,
       partCategoryType: generated.categoryType,
     };
   });

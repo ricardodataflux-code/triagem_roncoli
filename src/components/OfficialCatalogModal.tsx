@@ -1,10 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { X, Search, ShieldCheck, CheckCircle2, ChevronRight, BookOpen, Layers, ExternalLink } from 'lucide-react';
-import {
-  OFFICIAL_CATALOG_CATEGORIES,
-  getOfficialBrandCatalogUrl,
-  getOfficialBrandSyntaxGuide,
-} from '../data/officialBrandRules';
+import { X, Search, ShieldCheck, CheckCircle2, ChevronRight, BookOpen, Layers } from 'lucide-react';
+import { OFFICIAL_CATALOG_CATEGORIES } from '../data/officialBrandRules';
 
 interface OfficialCatalogModalProps {
   isOpen: boolean;
@@ -181,29 +177,16 @@ export const OfficialCatalogModal: React.FC<OfficialCatalogModalProps> = ({
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div>
-                          <div className="flex items-center gap-2 flex-wrap">
+                          <div className="flex items-center gap-2">
                             <h4 className="font-extrabold text-sm sm:text-base text-zinc-950 dark:text-white">
                               {b.brand}
                             </h4>
                             <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/70 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                               {b.tier}
                             </span>
-                            <a
-                              href={getOfficialBrandCatalogUrl(b.brand)}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                              title={`Abrir portal do catálogo oficial da ${b.brand}`}
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                              <span>Catálogo Online</span>
-                            </a>
                           </div>
                           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">
                             {b.description}
-                          </p>
-                          <p className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 mt-1">
-                            <span className="font-semibold text-zinc-700 dark:text-zinc-300">Padrão de Código:</span> {getOfficialBrandSyntaxGuide(b.brand)}
                           </p>
                         </div>
                         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">

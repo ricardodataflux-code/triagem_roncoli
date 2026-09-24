@@ -1,11 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { findOfflinePart, generateSmartFallbackPart } from '../data/offlineCatalog';
 import { getRioClaroSuppliersForPart } from '../data/rioClaroSuppliers';
-import {
-  OFFICIAL_BRAND_CATALOG_GUIDE_TEXT,
-  getOfficialBrandCatalogUrl,
-  isBrandHomologatedForPart,
-} from '../data/officialBrandRules';
+import { OFFICIAL_BRAND_CATALOG_GUIDE_TEXT } from '../data/officialBrandRules';
 
 export function getAiClient(): GoogleGenAI | null {
   const apiKey =
@@ -101,155 +97,6 @@ async function generateWithFallback(ai: GoogleGenAI, prompt: string) {
       throw err1;
     }
   }
-}
-
-function refineAndVerifyCatalogData(
-  parsedData: any,
-  params: SearchPartInput
-) {
-  const { part, model, engine, notes, year } = params;
-
-  // 1. Verifica se temos correspondência oficial no catálogo offline homologado
-  const offlineMatch = findOfflinePart(part, model, engine, notes);
-
-  let carSummary = parsedData.carSummary || `${model} ${year || ''}`.trim();
-  let partSummary = parsedData.partSummary || part;
-  let category = parsedData.category || 'Geral';
-  let quantityUsedInVehicle = parsedData.quantityUsedInVehicle || offlineMatch?.quantityUsedInVehicle || '1 unidade';
-
-  // Se o catálogo offline tiver correspondência exata para esse veículo, alinhar as definições
-  if (offlineMatch) {
-    carSummary = offlineMatch.carSummary;
-    partSummary = offlineMatch.partSummary;
-    category = offlineMatch.category;
-    if (offlineMatch.quantityUsedInVehicle) {
-      quantityUsedInVehicle = offlineMatch.quantityUsedInVehicle;
-    }
-  }
-
-  // 2. Refina e higieniza os códigos OEM
-  let oemCodes: any[] = Array.isArray(parsedData.oemCodes) ? parsedData.oemCodes : [];
-  oemCodes = oemCodes.filter((o: any) => {
-    const code = (o?.code || '').toUpperCase();
-    return (
-      !code.includes('OEM-BR') &&
-      !code.includes('DUMMY') &&
-      !code.includes('GEN-') &&
-      code !== 'CÓDIGO' &&
-      code.length > 2
-    );
-  });
-
-  if (offlineMatch && offlineMatch.oemCodes && offlineMatch.oemCodes.length > 0) {
-    for (const offOem of offlineMatch.oemCodes) {
-      if (!oemCodes.some((o: any) => o.code.replace(/[^a-zA-Z0-9]/g, '') === offOem.code.replace(/[^a-zA-Z0-9]/g, ''))) {
-        oemCodes.unshift(offOem);
-      }
-    }
-  }
-
-  // 3. Refina os códigos Aftermarket de acordo com a lista estrita dos fabricantes
-  let aftermarketCodes: any[] = Array.isArray(parsedData.aftermarketCodes) ? parsedData.aftermarketCodes : [];
-
-  // Filtra códigos inválidos e marcas fora de escopo
-  aftermarketCodes = aftermarketCodes.filter((item: any) => {
-    const code = (item?.code || '').toUpperCase();
-    const brand = item?.brand || '';
-    if (!brand || !code) return false;
-    if (code.includes('OEM-BR') || code.includes('DUMMY') || code.includes('GEN-') || code.includes('ZF-CL9080')) {
-      return false;
-    }
-    if (!isBrandHomologatedForPart(brand, category) && !isBrandHomologatedForPart(brand, partSummary)) {
-      return false;
-    }
-    return true;
-  });
-
-  // Se o catálogo offline oficial possuir aplicações confirmadas, priorizar e mesclar
-  if (offlineMatch && offlineMatch.aftermarketCodes && offlineMatch.aftermarketCodes.length > 0) {
-    for (const offItem of offlineMatch.aftermarketCodes) {
-      const existingIdx = aftermarketCodes.findIndex(
-        (a: any) => (a.brand || '').toLowerCase().trim() === (offItem.brand || '').toLowerCase().trim()
-      );
-      if (existingIdx !== -1) {
-        aftermarketCodes[existingIdx] = {
-          ...aftermarketCodes[existingIdx],
-          code: offItem.code,
-          tier: offItem.tier || aftermarketCodes[existingIdx].tier,
-          verdictBadge: offItem.verdictBadge || aftermarketCodes[existingIdx].verdictBadge,
-          salesVolume: offItem.salesVolume || aftermarketCodes[existingIdx].salesVolume,
-          technicalDetails: offItem.technicalDetails || aftermarketCodes[existingIdx].technicalDetails,
-          persuasiveDetails: offItem.persuasiveDetails || aftermarketCodes[existingIdx].persuasiveDetails,
-          warrantyInfo: offItem.warrantyInfo || aftermarketCodes[existingIdx].warrantyInfo,
-          catalogUrl: getOfficialBrandCatalogUrl(offItem.brand),
-          officialBrandMatch: true,
-        };
-      } else {
-        aftermarketCodes.push({
-          ...offItem,
-          catalogUrl: getOfficialBrandCatalogUrl(offItem.brand),
-          officialBrandMatch: true,
-        });
-      }
-    }
-  }
-
-  // Anexa catalogUrl para cada item aftermarket
-  aftermarketCodes = aftermarketCodes.map((item: any) => ({
-    ...item,
-    catalogUrl: item.catalogUrl || getOfficialBrandCatalogUrl(item.brand),
-    officialBrandMatch: true,
-  }));
-
-  // 4. Especificações técnicas
-  let technicalSpecs = Array.isArray(parsedData.technicalSpecs) ? parsedData.technicalSpecs : [];
-  if (offlineMatch && offlineMatch.technicalSpecs && offlineMatch.technicalSpecs.length > 0) {
-    const existingLabels = new Set(technicalSpecs.map((s: any) => (s?.label || '').toLowerCase().trim()));
-    for (const spec of offlineMatch.technicalSpecs) {
-      if (!existingLabels.has(spec.label.toLowerCase().trim())) {
-        technicalSpecs.push(spec);
-      }
-    }
-  }
-
-  // 5. Avisos de aplicação
-  let applicationWarnings = Array.isArray(parsedData.applicationWarnings) ? parsedData.applicationWarnings : [];
-  if (offlineMatch && offlineMatch.applicationWarnings) {
-    for (const warn of offlineMatch.applicationWarnings) {
-      if (!applicationWarnings.some((w: string) => w.toLowerCase().includes(warn.toLowerCase().substring(0, 30)))) {
-        applicationWarnings.unshift(warn);
-      }
-    }
-  }
-
-  // 6. Peças complementares
-  let complementaryParts = Array.isArray(parsedData.complementaryParts) ? parsedData.complementaryParts : [];
-  if (offlineMatch && offlineMatch.complementaryParts && complementaryParts.length === 0) {
-    complementaryParts = offlineMatch.complementaryParts;
-  }
-
-  // 7. Mensagem de WhatsApp com formatação padronizada e termo "total"
-  let whatsappMessage = parsedData.whatsappMessage || '';
-  if (whatsappMessage.includes('o jogo') || whatsappMessage.includes('O jogo') || whatsappMessage.includes('O Jogo')) {
-    whatsappMessage = whatsappMessage.replace(/o jogo/gi, 'total');
-  }
-
-  return {
-    carSummary,
-    partSummary,
-    category,
-    quantityUsedInVehicle,
-    oemCodes,
-    aftermarketCodes,
-    technicalSpecs,
-    applicationWarnings,
-    complementaryParts,
-    quickSalesPitch:
-      parsedData.quickSalesPitch ||
-      offlineMatch?.quickSalesPitch ||
-      `Temos opções originais homologadas para ${partSummary} no ${carSummary}.`,
-    whatsappMessage: whatsappMessage || offlineMatch?.whatsappMessage || '',
-  };
 }
 
 export interface SearchPartInput {
@@ -480,28 +327,27 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
     };
   }
 
-  const verified = refineAndVerifyCatalogData(parsedData, params);
-  const suppliersRioClaro = getRioClaroSuppliersForPart(verified.partSummary || part, verified.category || 'Geral');
+  const suppliersRioClaro = getRioClaroSuppliersForPart(parsedData.partSummary || part, parsedData.category || 'Geral');
 
   return {
     id: `part-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     timestamp: Date.now(),
     query: { part, model, year, engine, notes, transmission, vinOrPlate },
-    carSummary: verified.carSummary,
-    partSummary: verified.partSummary,
-    category: verified.category,
-    quantityUsedInVehicle: verified.quantityUsedInVehicle || undefined,
-    oemCodes: verified.oemCodes,
-    aftermarketCodes: verified.aftermarketCodes,
-    technicalSpecs: verified.technicalSpecs,
-    applicationWarnings: verified.applicationWarnings,
-    complementaryParts: verified.complementaryParts,
-    quickSalesPitch: verified.quickSalesPitch,
-    whatsappMessage: verified.whatsappMessage,
+    carSummary: parsedData.carSummary || `${model} ${year || ''}`.trim(),
+    partSummary: parsedData.partSummary || part,
+    category: parsedData.category || 'Geral',
+    quantityUsedInVehicle: parsedData.quantityUsedInVehicle || undefined,
+    oemCodes: Array.isArray(parsedData.oemCodes) ? parsedData.oemCodes : [],
+    aftermarketCodes: Array.isArray(parsedData.aftermarketCodes) ? parsedData.aftermarketCodes : [],
+    technicalSpecs: Array.isArray(parsedData.technicalSpecs) ? parsedData.technicalSpecs : [],
+    applicationWarnings: Array.isArray(parsedData.applicationWarnings) ? parsedData.applicationWarnings : [],
+    complementaryParts: Array.isArray(parsedData.complementaryParts) ? parsedData.complementaryParts : [],
+    quickSalesPitch: parsedData.quickSalesPitch || '',
+    whatsappMessage: parsedData.whatsappMessage || '',
     suppliersRioClaro,
     groundingSources,
     searchQueries,
-    rawAiExplanation: parsedData.rawAiExplanation || (verified.oemCodes?.length === 0 ? responseText : undefined),
+    rawAiExplanation: parsedData.rawAiExplanation || (parsedData.oemCodes?.length === 0 ? responseText : undefined),
   };
 }
 

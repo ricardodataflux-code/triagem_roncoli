@@ -119,9 +119,9 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
                 <span className="text-[10px] font-mono uppercase tracking-widest font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/80">
                   {result.category || 'Autopeças'}
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest font-semibold px-2.5 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800/80 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Alinhado ao Catálogo Oficial dos Fabricantes
+                <span className="text-[10px] font-mono uppercase tracking-widest font-medium px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-400 border border-zinc-800 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                  Verificado em Catálogos Técnicos
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
@@ -312,21 +312,8 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
                           </span>
                         </div>
 
-                        {/* Actions on Card: View Photo / Direct Catalog Link & Copy Code */}
+                        {/* Actions on Card: View Photo / Schematic & Copy Code */}
                         <div className="flex items-center gap-1">
-                          {item.catalogUrl && (
-                            <a
-                              href={item.catalogUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold border border-blue-200 dark:border-blue-900/60 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 transition-colors shadow-2xs"
-                              title={`Abrir catálogo oficial de ${item.brand}`}
-                            >
-                              <ExternalLink className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                              <span className="hidden sm:inline">Catálogo</span>
-                            </a>
-                          )}
-
                           <button
                             type="button"
                             onClick={() => setSelectedItemForImage(item)}
@@ -359,8 +346,8 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
                       </div>
 
                       {/* Part Code */}
-                      <div className="font-mono text-base sm:text-lg font-bold text-zinc-950 dark:text-white tracking-wider truncate select-all mb-1 flex items-center justify-between gap-2">
-                        <span>{item.code}</span>
+                      <div className="font-mono text-base sm:text-lg font-bold text-zinc-950 dark:text-white tracking-wider truncate select-all mb-1">
+                        {item.code}
                       </div>
 
                       {/* Commercial Line / Type */}
