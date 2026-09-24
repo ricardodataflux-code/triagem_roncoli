@@ -42,13 +42,13 @@ export const POPULAR_PRESETS: CarPreset[] = [
   },
   {
     title: "Hyundai HB20 1.0 12V 2019",
-    subtitle: "Kit Correia Dentada / Tensor",
+    subtitle: "Velas de Ignição Laser Iridium (SILZKR6B10E)",
     data: {
-      part: "Kit Correia Dentada e Tensor",
+      part: "Jogo de velas de ignição",
       model: "Hyundai HB20",
       year: "2019",
       engine: "1.0 12V Kappa 3 Cilindros Flex",
-      notes: "Verificar se é corrente ou correia de acessórios",
+      notes: "Motor Kappa 3 cilindros, rosca longa 26.5mm",
     },
   },
   {
