@@ -1,8 +1,6 @@
 // Catálogo Oficial e Referência Técnica Homologada para Balcão de Autopeças
 // 100% de precisão e conformidade com catálogos oficiais dos fabricantes
 
-import { matchBrazilianPart } from './brazilianPartsEngine';
-
 export interface OfflinePartRecord {
   partKeywords: string[];
   vehicleKeywords: string[];
@@ -1156,12 +1154,6 @@ export function findOfflinePart(
   engine?: string,
   notes?: string
 ): OfflinePartRecord | null {
-  // 1. Prioriza correspondência exata no motor estruturado de peças brasileiras
-  const matchedEnginePart = matchBrazilianPart(part, model, engine, notes);
-  if (matchedEnginePart) {
-    return matchedEnginePart;
-  }
-
   const pNorm = norm(part);
   const mNorm = norm(`${model} ${engine || ''} ${notes || ''}`);
 
@@ -1427,402 +1419,7 @@ export function generateSmartFallbackPart(
     };
   }
 
-  // Verifica se o motor de peças brasileiras tem correspondência
-  const matched = matchBrazilianPart(part, model, engine, notes);
-  if (matched) {
-    return matched;
-  }
-
-  // Detecta categoria e aplica marcas homologadas daquela especialidade
-  if (pNorm.includes('correia') || pNorm.includes('tensor') || pNorm.includes('distribuicao')) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: 'Kit de Correia e Tensor de Distribuição',
-      category: 'Correias, Mangueiras e Borrachas',
-      quantityUsedInVehicle: '1 kit completo',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Código de montadora varia por lote/ano' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'Continental',
-          code: 'Consulte no Catálogo ContiTech',
-          lineOrType: 'Kit Correia ContiTech + Tensor',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: `Correia dentada em borracha sintética HNBR de alta tolerância térmica para ${model}.`,
-          persuasiveDetails: 'Fornecedora original de montadora. Máxima segurança contra rompimento precoce.',
-          warrantyInfo: '12 meses ou 50.000 km de fábrica',
-          catalogUrl: 'https://www.continental-aftermarket.com/br',
-        },
-        {
-          brand: 'Gates',
-          code: 'Consulte no Catálogo Gates',
-          lineOrType: 'Kit PowerGrip Original',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Durabilidade',
-          technicalDetails: 'Tensor calibrado e correia de perfil curvilíneo com tração de fibra de vidro.',
-          persuasiveDetails: 'A marca líder mundial em sincronismo automotivo e industrial.',
-          warrantyInfo: '1 ano de garantia nacional',
-          catalogUrl: 'https://www.gatesbrasil.com.br',
-        },
-        {
-          brand: 'Dayco',
-          code: 'Consulte no Catálogo Dayco',
-          lineOrType: 'Kit de Distribuição Completo',
-          popularInBrazil: true,
-          salesVolume: 'Média saída',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: 'Conforme normas internacionais de tolerância dimensional.',
-          persuasiveDetails: 'Linha homologada para montadoras europeias e brasileiras.',
-          warrantyInfo: '12 meses direto de fábrica',
-          catalogUrl: 'https://www.daycocatalogue.com',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 kit completo' },
-        { label: 'Sistema de Sincronismo', value: 'Correia dentada com tensor regulador' },
-      ],
-      applicationWarnings: [
-        'Atenção: Conferir se este motor não utiliza corrente de comando metálica interna antes de vender a correia!',
-        'Recomenda-se a troca conjunta com a bomba de água.',
-      ],
-      complementaryParts: [
-        { name: "Bomba d'água", reason: 'Acionada no mesmo circuito de arrefecimento.', referenceCodes: 'Urba • Schadek' },
-      ],
-      quickSalesPitch: `Temos kits originais Continental ContiTech e Gates para a distribuição do ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação do Kit de Correia Dentada para o seu veículo:\n\nOpção 1\n✅ Peça: Kit Correia Dentada + Tensor\n✅ Marca Recomendada: Continental ContiTech (Original)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Kit Correia Dentada + Tensor\n✅ Marca Recomendada: Gates PowerGrip\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  if (pNorm.includes('pastilha') || pNorm.includes('disco') || pNorm.includes('freio') || pNorm.includes('sapata') || pNorm.includes('lona')) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: 'Jogo de Pastilhas de Freio Dianteiras (4 peças)',
-      category: 'Freios',
-      quantityUsedInVehicle: '1 jogo (contém 4 pastilhas para as 2 rodas dianteiras)',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Código varia por diâmetro de disco e aro de roda' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'Cobreq',
-          code: 'Consulte no Catálogo Cobreq',
-          lineOrType: 'Linha Street Original com Chapa Anti-Ruído',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: `Pastilhas com chapa anti-ruído vulcanizada e composto semimetálico para ${model}.`,
-          persuasiveDetails: 'A Cobreq é a pastilha mais vendida e confiada no balcão de autopeças no Brasil.',
-          warrantyInfo: '3 meses garantia legal Cobreq TMD Friction',
-          catalogUrl: 'https://catalogo.cobreq.com.br',
-        },
-        {
-          brand: 'Nakata',
-          code: 'Consulte no Catálogo Nakata',
-          lineOrType: 'Linha Segura Pastilhas',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: 'Composto de alta estabilidade térmica e baixo desprendimento de pó nas rodas.',
-          persuasiveDetails: 'Frenagem uniforme com resposta imediata e pedal firme.',
-          warrantyInfo: '12 meses contra defeitos de fabricação',
-          catalogUrl: 'https://catalogo.nakata.com.br',
-        },
-        {
-          brand: 'Bosch',
-          code: 'Consulte no Catálogo Bosch',
-          lineOrType: 'Linha Confort Original',
-          popularInBrazil: true,
-          salesVolume: 'Média saída',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Durabilidade',
-          technicalDetails: 'Fórmula certificada ECE-R90 para resposta segura em qualquer velocidade.',
-          persuasiveDetails: 'Padrão mundial de montadora Bosch em segurança automotiva.',
-          warrantyInfo: '12 meses de garantia Bosch',
-          catalogUrl: 'https://www.boschaftermarket.com/br',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 jogo (4 pastilhas dianteiras)' },
-        { label: 'Posição', value: 'Eixo dianteiro (Direito e Esquerdo)' },
-      ],
-      applicationWarnings: [
-        'Conferir se o disco de freio do veículo é sólido ou ventilado e a marca da pinça (Teves, Varga, Mando, Bosch, TRW).',
-      ],
-      complementaryParts: [
-        { name: 'Discos de Freio Dianteiros', reason: 'Troca recomendada se houver sulcos ou rebarba.', referenceCodes: 'Fremax • Hipper Freios' },
-      ],
-      quickSalesPitch: `Pastilhas de freio Cobreq e Nakata originais a pronta entrega para o ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação das Pastilhas de Freio para o seu veículo:\n\nOpção 1\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (1 jogo com 4 peças)\n✅ Marca Recomendada: Cobreq (Original de montadora)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Jogo de Pastilhas de Freio Dianteiras (1 jogo com 4 peças)\n✅ Marca Recomendada: Nakata\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  if (pNorm.includes('bomba') && (pNorm.includes('agua') || pNorm.includes('arrefecimento'))) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: "Bomba d'água do Motor",
-      category: 'Motor, Arrefecimento e Climatização',
-      quantityUsedInVehicle: '1 unidade',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Código varia por ano e motorização' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'Urba',
-          code: 'Consulte no Catálogo Urba',
-          lineOrType: 'Com carcaça e rotor metálico anti-cavitação',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: `Rotor balanceado dinamicamente e vedação em cerâmica de alta pressão para ${model}.`,
-          persuasiveDetails: 'A Urba é a maior especialista e fornecedora de bombas de água originais no Brasil.',
-          warrantyInfo: '12 meses ou 20.000 km de fábrica',
-          catalogUrl: 'https://urba-brosol.com.br',
-        },
-        {
-          brand: 'Nakata',
-          code: 'Consulte no Catálogo Nakata',
-          lineOrType: 'Linha Premium Leve',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: 'Rolamento blindado de alta rotação e carcaça usinada com anel de vedação incluso.',
-          persuasiveDetails: 'Confiabilidade Nakata para manter o motor na temperatura ideal.',
-          warrantyInfo: '12 meses com certificado nacional',
-          catalogUrl: 'https://catalogo.nakata.com.br',
-        },
-        {
-          brand: 'Schadek',
-          code: 'Consulte no Catálogo Schadek',
-          lineOrType: 'Rotor metálico reforçado',
-          popularInBrazil: true,
-          salesVolume: 'Média saída',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Durabilidade',
-          technicalDetails: 'Padrão montadora de alta vazão volumétrica de líquido.',
-          persuasiveDetails: 'Tradição e resistência comprovada em bombas de água e óleo.',
-          warrantyInfo: '1 ano de garantia Schadek',
-          catalogUrl: 'https://schadek.com.br',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 unidade' },
-        { label: 'Vedação', value: 'Anel O-ring incluso' },
-      ],
-      applicationWarnings: [
-        'Substituir o aditivo orgânico na proporção 50/50 com água desmineralizada na troca da bomba.',
-      ],
-      complementaryParts: [
-        { name: 'Válvula Termostática', reason: 'Prevenção essencial de superaquecimento.', referenceCodes: 'MTE-Thomson • Valclei' },
-      ],
-      quickSalesPitch: `Bomba d'água Urba ou Nakata original com 1 ano de garantia para ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação de Bomba d'água para o seu veículo:\n\nOpção 1\n✅ Peça: Bomba d'água do Motor (1 unidade)\n✅ Marca Recomendada: Urba (Original de montadora)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Bomba d'água do Motor (1 unidade)\n✅ Marca Recomendada: Nakata\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  if (pNorm.includes('termostatica') || pNorm.includes('sensor') || pNorm.includes('temperatura') || pNorm.includes('cebolao')) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: 'Válvula Termostática com Carcaça e Sensor',
-      category: 'Motor, Arrefecimento e Climatização',
-      quantityUsedInVehicle: '1 unidade',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Temperatura de abertura varia conforme motor' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'MTE-Thomson',
-          code: 'Consulte no Catálogo MTE-Thomson',
-          lineOrType: 'Linha Original Termostática',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: `Termostato calibrado com cera expansiva de alta sensibilidade para ${model}.`,
-          persuasiveDetails: 'A MTE-Thomson é a líder absoluta e pioneira em controle térmico de motores no Brasil.',
-          warrantyInfo: '1 ano de garantia MTE-Thomson',
-          catalogUrl: 'https://catalogo.mte-thomson.com.br',
-        },
-        {
-          brand: 'Valclei',
-          code: 'Consulte no Catálogo Valclei',
-          lineOrType: 'Carcaça e Válvula Reforçada',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: 'Carcaça de alta resistência à pressão térmica e vedação sob medida.',
-          persuasiveDetails: 'A maior linha de tubos, flanges e carcaças de arrefecimento da reposição brasileira.',
-          warrantyInfo: '12 meses direto de fábrica',
-          catalogUrl: 'https://valclei.com.br',
-        },
-        {
-          brand: 'Iguaçu',
-          code: 'Consulte no Catálogo Iguaçu',
-          lineOrType: 'Linha Termo-Sensores',
-          popularInBrazil: true,
-          salesVolume: 'Média saída',
-          tier: '2ª Linha',
-          verdictBadge: 'Melhor em Durabilidade',
-          technicalDetails: 'Interruptores e válvulas com calibração precisa em graus Celsius.',
-          persuasiveDetails: 'Tradição e confiabilidade em sistemas de refrigeração.',
-          warrantyInfo: '12 meses de garantia',
-          catalogUrl: 'https://iguacu.ind.br',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 unidade' },
-      ],
-      applicationWarnings: [
-        'Conferir a temperatura exata de abertura gravada na válvula antiga (ex: 82°C, 87°C, 89°C ou 92°C).',
-      ],
-      complementaryParts: [
-        { name: "Bomba d'água", reason: 'Garante o fluxo correto do líquido.', referenceCodes: 'Urba • Nakata' },
-      ],
-      quickSalesPitch: `Válvula termostática MTE-Thomson ou Valclei original para ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue cotação da Válvula Termostática para o seu veículo:\n\nOpção 1\n✅ Peça: Válvula Termostática (1 unidade)\n✅ Marca Recomendada: MTE-Thomson (Original)\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  if (pNorm.includes('vela') || pNorm.includes('bobina') || pNorm.includes('cabo de vela') || pNorm.includes('ignicao')) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: 'Jogo de Velas de Ignição / Componentes de Ignição',
-      category: 'Sistema Elétrico, Ignição e Injeção',
-      quantityUsedInVehicle: '1 jogo (1 por cilindro)',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Gap e grau térmico conforme motor' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'NGK',
-          code: 'Consulte no Catálogo NGK',
-          lineOrType: 'Linha Green Plug / G-Power / Laser Iridium',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: `Eletrodo central de níquel ou irídio com cerâmica de alta isolação dielétrica para ${model}.`,
-          persuasiveDetails: 'A NGK é a fornecedora número 1 do mundo e equipa a quase totalidade das montadoras brasileiras.',
-          warrantyInfo: '3 meses garantia legal NGK / NTK',
-          catalogUrl: 'https://www.ngkntk.com.br',
-        },
-        {
-          brand: 'Bosch',
-          code: 'Consulte no Catálogo Bosch',
-          lineOrType: 'Linha Super Plus / Nickel / Iridium',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Durabilidade',
-          technicalDetails: 'Eletrodo com liga de ítrio ou platina para queima completa da mistura e economia de combustível.',
-          persuasiveDetails: 'Padrão mundial Bosch de eficiência energética e partida rápida a frio.',
-          warrantyInfo: '12 meses de garantia Bosch',
-          catalogUrl: 'https://www.boschaftermarket.com/br',
-        },
-        {
-          brand: 'Delphi',
-          code: 'Consulte no Catálogo Delphi',
-          lineOrType: 'Linha de Ignição e Bobinas',
-          popularInBrazil: true,
-          salesVolume: 'Média saída',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: 'Componentes elétricos projetados para resistir a picos de alta tensão.',
-          persuasiveDetails: 'Fornecedora global de sistemas de injeção e ignição.',
-          warrantyInfo: '1 ano de garantia',
-          catalogUrl: 'https://www.delphiautoparts.com/bra/pt',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 jogo (1 vela por cilindro)' },
-      ],
-      applicationWarnings: [
-        'Respeitar rigorosamente o torque de aperto da vela com torquímetro (não apertar em excesso no cabeçote de alumínio).',
-        'Conferir a folga dos eletrodos (GAP) antes da instalação.',
-      ],
-      complementaryParts: [
-        { name: 'Jogo de Cabos de Ignição', reason: 'Troca recomendada para evitar fuga de corrente.', referenceCodes: 'NGK • Bosch' },
-      ],
-      quickSalesPitch: `Velas de ignição NGK e Bosch originais homologadas para ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue cotação das Velas de Ignição para o seu veículo:\n\nOpção 1\n✅ Peça: Jogo de Velas de Ignição\n✅ Marca Recomendada: NGK (Original)\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  if (pNorm.includes('filtro') || pNorm.includes('oleo') || pNorm.includes('combustivel') || pNorm.includes('cabine') || pNorm.includes('ar')) {
-    return {
-      partKeywords: [pNorm],
-      vehicleKeywords: [norm(model)],
-      carSummary: mClean,
-      partSummary: 'Filtro Automotivo Homologado',
-      category: 'Filtros, Vedação e Outros',
-      quantityUsedInVehicle: '1 unidade',
-      oemCodes: [
-        { code: 'Consultar no catálogo oficial pelo chassi', brandOrOrigin: 'Montadora Oficial', notes: 'Código conforme montadora' },
-      ],
-      aftermarketCodes: [
-        {
-          brand: 'Tecfil',
-          code: 'Consulte no Catálogo Tecfil',
-          lineOrType: 'Linha Original Tecfil',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor Custo-Benefício',
-          technicalDetails: `Papel filtrante micro-micrônico com válvula de alívio e retenção de precisão para ${model}.`,
-          persuasiveDetails: 'A Tecfil é a maior fabricante de filtros da América Latina e líder absoluta no mercado de reposição.',
-          warrantyInfo: 'Garantia legal de fábrica Tecfil',
-          catalogUrl: 'https://catalogo.tecfil.com.br',
-        },
-        {
-          brand: 'Mahle',
-          code: 'Consulte no Catálogo Mahle',
-          lineOrType: 'Linha Metal Leve / Mahle Original',
-          popularInBrazil: true,
-          salesVolume: 'Mais vendida',
-          tier: '1ª Linha',
-          verdictBadge: 'Melhor em Qualidade',
-          technicalDetails: 'Filtragem padrão OEM com alta capacidade de retenção de impurezas e fuligem.',
-          persuasiveDetails: 'Tradição alemã Mahle equipando veículos de primeira linha desde a montadora.',
-          warrantyInfo: '12 meses com certificado Mahle',
-          catalogUrl: 'https://catalogo.mahle.com.br',
-        },
-      ],
-      technicalSpecs: [
-        { label: 'Quantidade no Veículo', value: '1 unidade' },
-      ],
-      applicationWarnings: [
-        'Lubrificar o anel de borracha do filtro novo com óleo limpo antes de rosquear no bloco do motor.',
-      ],
-      complementaryParts: [
-        { name: 'Óleo de Motor Especificação Montadora', reason: 'Troca conjunta obrigatória.', referenceCodes: 'Mobil • Castrol • Shell' },
-      ],
-      quickSalesPitch: `Filtros Tecfil e Mahle originais a pronta entrega para ${model}.`,
-      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue cotação do Filtro para o seu veículo:\n\nOpção 1\n✅ Peça: Filtro Automotivo (1 unidade)\n✅ Marca Recomendada: Tecfil (Original)\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
-    };
-  }
-
-  // Fallback geral
+  // Fallback genérico para peças elétricas, filtros ou arrefecimento
   return {
     partKeywords: [pNorm],
     vehicleKeywords: [norm(model)],
@@ -1836,7 +1433,7 @@ export function generateSmartFallbackPart(
     aftermarketCodes: [
       {
         brand: 'Nakata',
-        code: 'Consulte no Catálogo Nakata',
+        code: 'Consultar no catálogo Nakata',
         lineOrType: 'Reposição Oficial Homologada',
         popularInBrazil: true,
         salesVolume: 'Mais vendida',
@@ -1846,6 +1443,19 @@ export function generateSmartFallbackPart(
         persuasiveDetails: 'Garantia de fábrica e assistência técnica nacional.',
         warrantyInfo: '12 meses direto de fábrica',
         catalogUrl: 'https://catalogo.nakata.com.br',
+      },
+      {
+        brand: 'Cobreq',
+        code: 'Consultar no catálogo Cobreq',
+        lineOrType: 'Linha Homologada Original',
+        popularInBrazil: true,
+        salesVolume: 'Mais vendida',
+        tier: '1ª Linha',
+        verdictBadge: 'Melhor em Qualidade',
+        technicalDetails: `Referência de alta durabilidade e qualidade de montadora para ${model}.`,
+        persuasiveDetails: 'Segurança mecânica e tolerância de encaixe rigorosa.',
+        warrantyInfo: '1 ano de garantia',
+        catalogUrl: 'https://catalogo.cobreq.com.br',
       },
     ],
     technicalSpecs: [
@@ -1857,6 +1467,6 @@ export function generateSmartFallbackPart(
     ],
     complementaryParts: [],
     quickSalesPitch: `Temos opções originais e homologadas para ${part} no ${model}.`,
-    whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação de *${part}* para o seu veículo:\n\nOpção 1\n✅ Peça: ${part} (1 unidade)\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
+    whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação de *${part}* para o seu veículo:\n\nOpção 1\n✅ Peça: ${part} (1 unidade)\n✅ Marca Recomendada: Nakata / Cobreq\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nQualquer dúvida, estou à disposição!`,
   };
 }

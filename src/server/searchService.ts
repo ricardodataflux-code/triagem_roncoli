@@ -402,11 +402,6 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
     const offlineMatch = findOfflinePart(part, model, engine, notes) || generateSmartFallbackPart(part, model, year, engine, notes);
     const localSuppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
 
-    const dynamicGroundingSources = (offlineMatch.aftermarketCodes || []).map((a: any) => ({
-      uri: a.catalogUrl || getOfficialBrandCatalogUrl(a.brand),
-      title: `Catálogo Oficial ${a.brand}`,
-    }));
-
     return {
       id: `catalog-${Date.now()}`,
       timestamp: Date.now(),
@@ -423,15 +418,12 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
       quickSalesPitch: offlineMatch.quickSalesPitch,
       whatsappMessage: offlineMatch.whatsappMessage,
       suppliersRioClaro: localSuppliers,
-      groundingSources:
-        dynamicGroundingSources.length > 0
-          ? dynamicGroundingSources
-          : [
-              { uri: 'https://catalogo.cobreq.com.br', title: 'Catálogo Oficial Cobreq' },
-              { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Oficial Nakata' },
-              { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Oficial Cofap' },
-              { uri: 'https://aftermarket.schaeffler.com.br', title: 'Catálogo Schaeffler LUK' },
-            ],
+      groundingSources: [
+        { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
+        { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
+        { uri: 'https://www.luk.com.br', title: 'Catálogo Schaeffler LUK' },
+        { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Bosch' },
+      ],
       searchQueries: [part, model],
     };
   }
