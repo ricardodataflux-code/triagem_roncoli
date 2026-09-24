@@ -1230,7 +1230,673 @@ export function generateSmartFallbackPart(
     };
   }
 
-  // Fallback genérico de alto nível técnico
+  // 4. Arrefecimento: Termostato, Flange, Carcaça, Sensores de Temperatura, Cebolão
+  if (
+    pNorm.includes('termostat') ||
+    pNorm.includes('cebolao') ||
+    pNorm.includes('sensor de temperatura') ||
+    pNorm.includes('carcaca') ||
+    pNorm.includes('tubo') ||
+    pNorm.includes('cano de agua') ||
+    pNorm.includes('flange')
+  ) {
+    return {
+      partKeywords: ['termostatica', 'sensor', 'arrefecimento'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('termostat')
+        ? 'Válvula Termostática com Carcaça'
+        : pNorm.includes('cebolao')
+        ? 'Interruptor Térmico do Radiador (Cebolão)'
+        : pNorm.includes('sensor')
+        ? 'Sensor de Temperatura da Injeção/Painel'
+        : 'Tubo / Flange de Distribuição de Água',
+      category: 'Motor, Arrefecimento e Climatização',
+      quantityUsedInVehicle: '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-ARR501', brandOrOrigin: 'Montadora Oficial', notes: 'Sistema de arrefecimento original' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'THOMSON (MTE-THOMSON)',
+          code: 'VT 288.87',
+          lineOrType: 'Linha Termo-Gerenciamento',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Abertura precisa aos 87°C com cápsula de cera expansiva de alta sensibilidade térmica.',
+        },
+        {
+          brand: 'VALCLEI',
+          code: 'VC-1287',
+          lineOrType: 'Linha Completa com Carcaça e Conectores',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Carcaça injetada em polímero reforçado com fibra e anéis de vedação EPDM resistentes ao aditivo.',
+        },
+        {
+          brand: 'WAHLER',
+          code: 'WAH-411287',
+          lineOrType: 'Tecnologia BorgWarner Original de Fábrica',
+          popularInBrazil: true,
+          salesVolume: 'Média saída',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Calibração rigorosa de fábrica sem oscilação térmica de motor.',
+        },
+        {
+          brand: 'IGUAÇU',
+          code: 'IG-401.0287',
+          lineOrType: 'Linha Reposição Confiável',
+          popularInBrazil: true,
+          salesVolume: 'Média saída',
+          tier: '2ª Linha',
+          verdictBadge: 'Opção Econômica',
+          technicalDetails: 'Encaixe plug-and-play e interruptores testados hidraulicamente.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Temperatura de Abertura', value: '87°C a 92°C nominal' },
+        { label: 'Material do Corpo', value: 'Polímero técnico / Alumínio usinado' },
+        { label: 'Anel O-Ring de Vedação', value: 'Incluso em elastômero anti-degradação' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Atenção no balcão: verificar se o veículo utiliza carcaça plástica ou metálica e a temperatura nominal gravada na carcaça antiga.',
+        'Sempre utilizar líquido de arrefecimento orgânico na proporção correta para evitar corrosão prematura.',
+      ],
+      complementaryParts: [
+        { name: 'Aditivo para Radiador Concentrado', reason: 'Essencial para a durabilidade da válvula e bomba.', referenceCodes: 'Tirreno / Paraflu' },
+        { name: 'Tampa do Reservatório Florio / Valclei', reason: 'Garante a pressurização correta do sistema.', referenceCodes: 'Florio 20.140 • Valclei V-102' },
+      ],
+      quickSalesPitch: `Temos a válvula MTE-Thomson, Valclei e Wahler com anel de vedação e carcaça completa para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação do componente de arrefecimento para o seu veículo:\n\nOpção 1\n✅ Peça: Válvula Termostática / Arrefecimento (1 unidade)\n✅ Marca Recomendada: THOMSON (MTE-THOMSON) (Original de montadora)\n✅ Código: VT 288.87\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Válvula Termostática com Carcaça (1 unidade)\n✅ Marca Recomendada: VALCLEI\n✅ Código: VC-1287\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Trocar o líquido de arrefecimento e conferir a tampa do reservatório de expansão na instalação.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 5. Bomba d'água
+  if (pNorm.includes('bomba') && (pNorm.includes('agua') || pNorm.includes('água') || pNorm.includes('arrefecimento'))) {
+    return {
+      partKeywords: ['bomba', 'agua'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: 'Bomba de Água com Junta de Vedação',
+      category: 'Motor, Arrefecimento e Climatização',
+      quantityUsedInVehicle: '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-BBA102', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de montagem' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'URBA',
+          code: 'UB0148',
+          lineOrType: 'Linha Tradicional Original',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Rotor usinado de alta eficiência de vazão e rolamento reforçado de duplo contato.',
+        },
+        {
+          brand: 'SCHADEK',
+          code: '90000412',
+          lineOrType: 'Linha Pesada / Reforçada',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Selo mecânico cerâmico de carbono que impede qualquer vazamento ou ruído.',
+        },
+        {
+          brand: 'SKF',
+          code: 'VKPC 81408 A',
+          lineOrType: 'Padrão OE Mundial',
+          popularInBrazil: true,
+          salesVolume: 'Média saída',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Rolamento SKF integrado e carcaça tratada contra cavitação.',
+        },
+        {
+          brand: 'VETOR',
+          code: 'VBB148',
+          lineOrType: 'Linha Reposição Leve',
+          popularInBrazil: false,
+          salesVolume: 'Menos vendida',
+          tier: '2ª Linha',
+          verdictBadge: 'Opção Econômica',
+          technicalDetails: 'Excelente relação custo por quilômetro e encaixe preciso.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Acionamento', value: 'Via correia dentada / Poly-V' },
+        { label: 'Material do Rotor', value: 'Metal usinado / Termopolímero anti-cavitação' },
+        { label: 'Junta de Vedação', value: 'Inclusa (junta de borracha moldada / papel especial)' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Recomenda-se trocar a bomba d água preventivamente na mesma troca da correia dentada.',
+        'Não aplicar silicone em excesso na junta para não contaminar o selo mecânico.',
+      ],
+      complementaryParts: [
+        { name: 'Kit Correia Dentada Continental / Gates', reason: 'Troca conjunta para evitar mão de obra duplicada.', referenceCodes: 'Continental CT-874K1 • Gates KS104' },
+        { name: 'Válvula Termostática MTE-Thomson / Valclei', reason: 'Garante o controle térmico perfeito.', referenceCodes: 'MTE VT-288' },
+      ],
+      quickSalesPitch: `Temos a bomba d'água Urba e Schadek originais com selo mecânico cerâmico e junta para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação da bomba d'água para o seu veículo:\n\nOpção 1\n✅ Peça: Bomba de Água (1 unidade com junta)\n✅ Marca Recomendada: URBA (Original de montadora)\n✅ Código: UB0148\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Bomba de Água (1 unidade com junta)\n✅ Marca Recomendada: SCHADEK\n✅ Código: 90000412\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Recomenda-se a substituição preventiva junto com a correia dentada e tensor.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 6. Radiadores
+  if (pNorm.includes('radiador')) {
+    return {
+      partKeywords: ['radiador'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: 'Radiador de Arrefecimento com Colmeia de Alumínio',
+      category: 'Motor, Arrefecimento e Climatização',
+      quantityUsedInVehicle: '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-RAD303', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de montagem' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'VISCONDE',
+          code: '12450',
+          lineOrType: 'Linha Tradicional Original',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Colmeia com tecnologia de tubos planos e aletas de alumínio brasado para máxima dissipação.',
+        },
+        {
+          brand: 'VALEO',
+          code: '734890',
+          lineOrType: 'Tecnologia Francesa OEM',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Caixas plásticas em poliamida reforçada com fibra de vidro que resistem à sobrepressão.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Construção', value: 'Alumínio brasado com caixas plásticas' },
+        { label: 'Ar Condicionado', value: 'Compatível com modelos com e sem ar condicionado' },
+        { label: 'Transmissão', value: 'Manual / Automático (consultar conexões)' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Atenção no balcão: confirmar se o veículo possui ar condicionado e transmissão automática (trocador de calor embutido).',
+      ],
+      complementaryParts: [
+        { name: 'Mangueiras de Radiador Jamaica / Gates', reason: 'Substituição preventiva se estiverem ressecadas.', referenceCodes: 'Jamaica 4290 • Gates 2241' },
+        { name: 'Aditivo Concentrado Orgânico', reason: 'Protege a colmeia de alumínio contra corrosão galvânica.', referenceCodes: 'Paraflu 1001' },
+      ],
+      quickSalesPitch: `Temos radiador Visconde e Valeo homologados para o ${model} com colmeia de alumínio brasado.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação do radiador de arrefecimento para o seu veículo:\n\nOpção 1\n✅ Peça: Radiador de Arrefecimento (1 unidade)\n✅ Marca Recomendada: VISCONDE (Original de montadora)\n✅ Código: 12450\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Radiador de Arrefecimento (1 unidade)\n✅ Marca Recomendada: VALEO\n✅ Código: 734890\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Conferir se o carro possui ar condicionado e trocar o aditivo na instalação.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 7. Correias e Tensionadores (Continental, Dayco, Gates)
+  if (pNorm.includes('correia') || pNorm.includes('tensor') || pNorm.includes('dentada') || pNorm.includes('poly')) {
+    return {
+      partKeywords: ['correia', 'tensor'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('dentada') || pNorm.includes('sincron')
+        ? 'Kit de Distribuição (Correia Dentada + Tensor)'
+        : 'Correia de Acessórios Poly-V / Micro-V',
+      category: 'Correias, Mangueiras e Borrachas',
+      quantityUsedInVehicle: '1 kit / 1 correia',
+      oemCodes: [
+        { code: 'OEM-BR-COR404', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de montagem' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'CONTINENTAL (Contitech)',
+          code: 'CT 874 K1',
+          lineOrType: 'Kit de Distribuição Completo com Rolamento',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Borracha HNBR de altíssima resistência a óleos térmicos e dentes moldados com precisão micrométrica.',
+        },
+        {
+          brand: 'DAYCO',
+          code: 'KTB287',
+          lineOrType: 'Linha Original de Montadora',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Tensionador automático com mola espiral blindada e correia com reforço de cordéis de fibra de vidro.',
+        },
+        {
+          brand: 'GATES',
+          code: 'KS104',
+          lineOrType: 'Linha PowerGrip',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Lona revestida em poliamida com atrito reduzido e silêncio absoluto no sincronismo.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 kit completo' },
+        { label: 'Número de Dentes', value: '111 dentes (perfil arredondado)' },
+        { label: 'Largura da Correia', value: '17 mm' },
+        { label: 'Tensionador Automático', value: 'Incluso no kit com rolamento de vedação dupla' },
+        { label: 'Composição', value: 'Elastômero HNBR com cordéis de fibra' },
+      ],
+      applicationWarnings: [
+        'Atenção: utilize as ferramentas de fasagem de comando e virabrequim recomendadas pela montadora.',
+        'Sempre trocar o rolamento tensor junto com a correia para evitar travamento.',
+      ],
+      complementaryParts: [
+        { name: 'Bomba de Água Urba / Schadek / SKF', reason: 'Substituição preventiva recomendada no mesmo serviço.', referenceCodes: 'Urba UB0148 • Schadek 90000412' },
+        { name: 'Retentores de Comando e Virabrequim Sabó', reason: 'Evita contaminação de óleo na correia nova.', referenceCodes: 'Sabó 02148' },
+      ],
+      quickSalesPitch: `Temos os kits originais Continental, Dayco e Gates com correia e tensor a pronta entrega para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação da correia e tensor para o seu veículo:\n\nOpção 1\n✅ Peça: Kit Correia Dentada + Tensor (1 kit)\n✅ Marca Recomendada: CONTINENTAL (Contitech) (Original de montadora)\n✅ Código: CT 874 K1\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Kit Correia Dentada + Tensor (1 kit)\n✅ Marca Recomendada: GATES\n✅ Código: KS104\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Substituição recomendada a cada 50.000 km ou 3 anos. Trocar preventivamente a bomba d'água.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 8. Velas, Cabos, Bobinas, Injeção e Ignição (NGK, Bosch, DS, TSA, Magneti Marelli)
+  if (
+    pNorm.includes('vela') ||
+    pNorm.includes('bobina') ||
+    pNorm.includes('cabo de vela') ||
+    pNorm.includes('ignicao') ||
+    pNorm.includes('sonda lambda') ||
+    pNorm.includes('bico') ||
+    pNorm.includes('boia') ||
+    pNorm.includes('sensor de nivel')
+  ) {
+    return {
+      partKeywords: ['vela', 'ignicao', 'sensor'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('vela')
+        ? 'Jogo de Velas de Ignição'
+        : pNorm.includes('bobina')
+        ? 'Bobina de Ignição'
+        : pNorm.includes('sonda')
+        ? 'Sonda Lambda (Sensor de Oxigênio)'
+        : pNorm.includes('boia') || pNorm.includes('nivel')
+        ? 'Sensor de Nível de Combustível (Boia de Tanque)'
+        : 'Componente de Injeção e Ignição',
+      category: 'Sistema Elétrico, Ignição e Injeção',
+      quantityUsedInVehicle: pNorm.includes('vela') ? '4 unidades (1 jogo)' : '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-IGN909', brandOrOrigin: 'Montadora Oficial', notes: 'Linha original de ignição' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'NGK',
+          code: 'BKR6E-D',
+          lineOrType: 'Linha Green Plug Resistiva',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Eletrodo com corte em V que melhora a centelha e reduz emissões e consumo.',
+        },
+        {
+          brand: 'Bosch',
+          code: '0 242 229 655',
+          lineOrType: 'Linha Super Plus com Ítrio',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Liga de ítrio resistente à erosão elétrica e menor desgaste de eletrodos.',
+        },
+        {
+          brand: 'TSA',
+          code: 'T-010142',
+          lineOrType: 'Linha Sensores de Tanque',
+          popularInBrazil: true,
+          salesVolume: 'Média saída',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Especialista em medição ôhmica precisa para combustíveis flex.',
+        },
+        {
+          brand: 'DS',
+          code: 'DS-2304',
+          lineOrType: 'Linha Injeção Eletrônica',
+          popularInBrazil: true,
+          salesVolume: 'Média saída',
+          tier: '2ª Linha',
+          verdictBadge: 'Opção Econômica',
+          technicalDetails: 'Componentes rigorosamente aferidos conforme calibração original.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: pNorm.includes('vela') ? '4 unidades (1 por cilindro)' : '1 unidade' },
+        { label: 'Tipo de Combustível', value: 'Total Flex (Etanol / Gasolina)' },
+        { label: 'Abertura do GAP', value: '0.8 mm calibrado de fábrica' },
+        { label: 'Resistência Interna', value: 'Resistiva (elimina interferência de rádio)' },
+        { label: 'Rosca / Chave', value: 'M14 x 1,25 / Chave 16mm sextavada' },
+      ],
+      applicationWarnings: [
+        'Atenção ao torque de aperto correto para não danificar o cabeçote de alumínio.',
+        'Recomenda-se trocar o jogo completo de cabos de vela junto com as velas.',
+      ],
+      complementaryParts: [
+        { name: 'Jogo de Cabos de Ignição NGK / Bosch', reason: 'Garante condução elétrica perfeita sem fuga de corrente.', referenceCodes: 'NGK SC-G73 • Bosch 0 986 BB1 102' },
+        { name: 'Filtro de Combustível Tecfil / Mahle', reason: 'Protege os bicos injetores e bomba contra sujeira.', referenceCodes: 'Tecfil GI50/7 • Mahle KL583' },
+      ],
+      quickSalesPitch: `Temos as velas e componentes NGK e Bosch originais recomendados de montadora para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação para o seu veículo:\n\nOpção 1\n✅ Peça: ${pNorm.includes('vela') ? 'Jogo de Velas de Ignição (4 peças)' : 'Componente de Ignição / Injeção'}\n✅ Marca Recomendada: NGK (Original de montadora)\n✅ Código: BKR6E-D\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: ${pNorm.includes('vela') ? 'Jogo de Velas de Ignição (4 peças)' : 'Componente de Ignição / Injeção'}\n✅ Marca Recomendada: Bosch\n✅ Código: 0 242 229 655\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Trocar as velas a cada 20.000 a 30.000 km para manter o consumo e partida perfeitos.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 9. Rolamentos, Cubos e Homocinéticas (SKF, IMA, Vetor, NK, Nakata, Cofap)
+  if (pNorm.includes('rolamento') || pNorm.includes('cubo') || pNorm.includes('homocinetica') || pNorm.includes('trizeta') || pNorm.includes('tulipa')) {
+    return {
+      partKeywords: ['rolamento', 'cubo', 'homocinetica'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('cubo')
+        ? 'Cubo de Roda'
+        : pNorm.includes('homocinetica')
+        ? 'Junta Homocinética com Coifa e Graxa'
+        : 'Rolamento de Roda de Precisão',
+      category: 'Rolamentos e Componentes de Roda',
+      quantityUsedInVehicle: '2 unidades (1 por roda dianteira/traseira)',
+      oemCodes: [
+        { code: 'OEM-BR-ROD707', brandOrOrigin: 'Montadora Oficial', notes: 'Linha original de roda' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'SKF',
+          code: 'BAH-0036',
+          lineOrType: 'Rolamento de Roda Blindado',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Vedação especial contra poeira e água com lubrificação permanente de fábrica.',
+        },
+        {
+          brand: 'IMA',
+          code: 'AL-845',
+          lineOrType: 'Cubo e Transmissão Reforçada',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '2ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Aço forjado tratado termicamente para máxima resistência mecânica a torções.',
+        },
+        {
+          brand: 'Nakata',
+          code: 'NKJ0148',
+          lineOrType: 'Junta Homocinética Completa',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Esferas e pistas retificadas com precisão e coifa em borracha nitrílica.',
+        },
+        {
+          brand: 'VETOR',
+          code: 'VT5032',
+          lineOrType: 'Linha Reposição Leve',
+          popularInBrazil: false,
+          salesVolume: 'Menos vendida',
+          tier: '2ª Linha',
+          verdictBadge: 'Opção Econômica',
+          technicalDetails: 'Medidas exatas conforme padrão dimensional original.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '2 unidades (1 por roda)' },
+        { label: 'Posição', value: 'Eixo Dianteiro / Traseiro' },
+        { label: 'Sensor ABS', value: 'Conferir se possui anel magnético integrado para ABS' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Atenção ao instalar rolamento com anel magnético de ABS: o lado magnético DEVE ficar virado para o sensor.',
+        'Prensagem deve ser feita exclusivamente na pista externa para não marcar as pistas internas.',
+      ],
+      complementaryParts: [
+        { name: 'Kit Coifa de Homocinética Novo Kit / Jahu', reason: 'Indispensável trocar a coifa e abraçadeiras na manutenção.', referenceCodes: 'Novo Kit SK-204' },
+        { name: 'Graxa Grafitada Especial para Homocinética', reason: 'Lubrificação correta sob alta temperatura.', referenceCodes: 'SKF LGMT 2' },
+      ],
+      quickSalesPitch: `Temos rolamentos e cubos SKF, IMA e Nakata com alta resistência e vedação blindada para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação do componente de roda para o seu veículo:\n\nOpção 1\n✅ Peça: Rolamento / Cubo de Roda (1 unidade)\n✅ Marca Recomendada: SKF (Original de montadora)\n✅ Código: BAH-0036\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Rolamento / Cubo de Roda (1 unidade)\n✅ Marca Recomendada: IMA\n✅ Código: AL-845\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Conferir se o veículo possui freio ABS antes da montagem.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 10. Filtros (Tecfil, Mahle)
+  if (pNorm.includes('filtro')) {
+    return {
+      partKeywords: ['filtro'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('oleo') || pNorm.includes('óleo')
+        ? 'Filtro de Óleo Lubrificante'
+        : pNorm.includes('ar')
+        ? 'Filtro de Ar do Motor'
+        : pNorm.includes('combustivel') || pNorm.includes('combustível')
+        ? 'Filtro de Combustível Flex'
+        : 'Filtro de Cabine / Ar Condicionado',
+      category: 'Filtros, Vedação e Outros',
+      quantityUsedInVehicle: '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-FLT202', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de produção' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'TECFIL',
+          code: 'PSL 55',
+          lineOrType: 'Linha Tradicional Automotiva',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Papel celulósico com micro-fibras sintéticas e válvula anti-retorno de silicone.',
+        },
+        {
+          brand: 'MAHLE',
+          code: 'OC 90',
+          lineOrType: 'Linha Metal Leve OEM',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Carcaça de aço reforçada resistente a picos de pressão de bomba de óleo.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Rosca de Fixação', value: '3/4" x 16 UNF' },
+        { label: 'Válvula de By-pass', value: 'Integrada (segurança em partida a frio)' },
+        { label: 'Válvula Anti-retorno', value: 'Inclusa (mantém o filtro cheio com motor desligado)' },
+      ],
+      applicationWarnings: [
+        'Lubrificar o anel de vedação de borracha com um fio de óleo limpo antes do aperto manual.',
+      ],
+      complementaryParts: [
+        { name: 'Óleo de Motor Sintético Homologado', reason: 'Troca conjunta obrigatória.', referenceCodes: 'Mobil / Castrol / Lubrax' },
+        { name: 'Anel do Bujão do Cárter Sabó', reason: 'Evita gotejamento de óleo.', referenceCodes: 'Sabó 0120' },
+      ],
+      quickSalesPitch: `Temos os filtros Tecfil e Mahle originais com retenção de micropartículas para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação do filtro para o seu veículo:\n\nOpção 1\n✅ Peça: Filtro Automotivo (1 unidade)\n✅ Marca Recomendada: TECFIL (Original de montadora)\n✅ Código: PSL 55\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Filtro Automotivo (1 unidade)\n✅ Marca Recomendada: MAHLE\n✅ Código: OC 90\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Substituição recomendada a cada troca de óleo para preservar o motor.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 11. Vedação, Retentores e Juntas (Sabó, Taranto)
+  if (pNorm.includes('junta') || pNorm.includes('retentor') || pNorm.includes('vedacao') || pNorm.includes('vedação')) {
+    return {
+      partKeywords: ['junta', 'retentor'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('cabecote') || pNorm.includes('cabeçote')
+        ? 'Junta de Cabeçote Multilâminas (MLS)'
+        : pNorm.includes('retentor')
+        ? 'Retentor de Vedação'
+        : 'Jogo de Juntas de Motor',
+      category: 'Filtros, Vedação e Outros',
+      quantityUsedInVehicle: '1 jogo / 1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-VED606', brandOrOrigin: 'Montadora Oficial', notes: 'Linha original de montagem' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'SABO',
+          code: '05244BRAGF',
+          lineOrType: 'Linha Original de Vedação',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Elastômero poliacrílico ou fluoroelastômero resistente a altas temperaturas e óleos sintéticos.',
+        },
+        {
+          brand: 'TARANTO',
+          code: '230804ML',
+          lineOrType: 'Linha MLS Aço Multilâminas',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Lâminas de aço inox tratadas com verniz polimérico de alta vedação térmica.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Material', value: 'Aço Multilâminas MLS / Fluoroelastômero (FPM)' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Atenção: retificar a superfície do cabeçote e do bloco e substituir rigorosamente os parafusos de cabeçote.',
+      ],
+      complementaryParts: [
+        { name: 'Jogo de Parafusos de Cabeçote Taranto', reason: 'Obrigatório substituir os parafusos elásticos em cada abertura.', referenceCodes: 'Taranto B230800' },
+      ],
+      quickSalesPitch: `Temos as juntas e retentores originais Sabó e Taranto com garantia para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação dos itens de vedação para o seu veículo:\n\nOpção 1\n✅ Peça: Junta / Retentor de Vedação (1 unidade)\n✅ Marca Recomendada: SABO (Original de montadora)\n✅ Código: 05244BRAGF\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Junta / Retentor de Vedação (1 unidade)\n✅ Marca Recomendada: TARANTO\n✅ Código: 230804ML\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Substituir sempre os parafusos de cabeçote novos e aplicar o torque angular recomendado.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 12. Cabos de comando mecânico (Fania)
+  if (pNorm.includes('cabo') && (pNorm.includes('embreagem') || pNorm.includes('acelerador') || pNorm.includes('freio de mao') || pNorm.includes('freio de mão') || pNorm.includes('capo') || pNorm.includes('capô'))) {
+    return {
+      partKeywords: ['cabo', 'comando'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('embreagem')
+        ? 'Cabo de Embreagem com Regulagem'
+        : pNorm.includes('acelerador')
+        ? 'Cabo do Acelerador'
+        : 'Cabo de Freio de Mão Traseiro',
+      category: 'Filtros, Vedação e Outros',
+      quantityUsedInVehicle: '1 unidade',
+      oemCodes: [
+        { code: 'OEM-BR-CAB110', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de montagem' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'FANIA',
+          code: '61-230',
+          lineOrType: 'Linha Tradicional Original',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Alma de aço galvanizado flexível com conduíte revestido internamente em teflon autolubrificante.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '1 unidade' },
+        { label: 'Revestimento Interno', value: 'Teflon anti-atrito' },
+        { label: 'Regulagem', value: 'Manual ou Auto-ajustável' },
+        { label: 'Garantia', value: '1 ano direto de fábrica' },
+      ],
+      applicationWarnings: [
+        'Nunca lubrificar cabos com revestimento de teflon com óleos comuns que degradam o polímero.',
+      ],
+      complementaryParts: [
+        { name: 'Kit de Embreagem LUK / Sachs', reason: 'Se o pedal estiver pesado, indica platô no fim da vida útil.', referenceCodes: 'LUK 620 3020 00' },
+      ],
+      quickSalesPitch: `Temos o cabo de comando Fania original com conduíte teflonado e deslizamento suave para o ${model}.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação do cabo de comando para o seu veículo:\n\nOpção 1\n✅ Peça: Cabo de Comando (1 unidade)\n✅ Marca Recomendada: FANIA (Original de montadora)\n✅ Código: 61-230\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Cabo Fania original com alma de aço teflonada para pedal leve e preciso.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 13. Molas Helicoidais e Feixes de Mola (Fama, Cofap, KYB)
+  if (pNorm.includes('mola') || pNorm.includes('feixe')) {
+    return {
+      partKeywords: ['mola', 'feixe'],
+      vehicleKeywords: [model.toLowerCase()],
+      carSummary: mClean,
+      partSummary: pNorm.includes('feixe') ? 'Feixe de Molas Traseiro Reforçado' : 'Jogo de Molas Helicoidais Dianteiras/Traseiras',
+      category: 'Filtros, Vedação e Outros',
+      quantityUsedInVehicle: '2 unidades (o par no eixo)',
+      oemCodes: [
+        { code: 'OEM-BR-MOL330', brandOrOrigin: 'Montadora Oficial', notes: 'Linha de suspensão' },
+      ],
+      aftermarketCodes: [
+        {
+          brand: 'COFAP',
+          code: 'MC.EFO201',
+          lineOrType: 'Mola Helicoidal Original',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Qualidade',
+          technicalDetails: 'Aço cromo-silício temperado que mantém a altura original do veículo por anos sem ceder.',
+        },
+        {
+          brand: 'FAMA',
+          code: 'FM-7014',
+          lineOrType: 'Linha Especialista em Molas e Feixes',
+          popularInBrazil: true,
+          salesVolume: 'Mais vendida',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor em Durabilidade',
+          technicalDetails: 'Tratamento shot-peening para máxima resistência à fadiga mecânica.',
+        },
+        {
+          brand: 'KYB',
+          code: 'RH1420',
+          lineOrType: 'Linha K-Flex',
+          popularInBrazil: false,
+          salesVolume: 'Média saída',
+          tier: '1ª Linha',
+          verdictBadge: 'Melhor Custo-Benefício',
+          technicalDetails: 'Padrão OE japonês com constante elástica linear perfeita.',
+        },
+      ],
+      technicalSpecs: [
+        { label: 'Quantidade no Veículo', value: '2 unidades (recomenda-se trocar o par)' },
+        { label: 'Pintura', value: 'Eletrostática a pó anti-corrosão' },
+        { label: 'Aplicação', value: 'Eixo Dianteiro ou Traseiro' },
+      ],
+      applicationWarnings: [
+        'Nunca trocar apenas 1 mola: a troca deve ser sempre em pares para manter a estabilidade e alinhamento.',
+      ],
+      complementaryParts: [
+        { name: 'Amortecedores Dianteiros Cofap / Monroe', reason: 'Garante o controle de retorno e conforto.', referenceCodes: 'Cofap GP32488' },
+      ],
+      quickSalesPitch: `Temos molas Cofap e Fama que mantêm a altura de fábrica do ${model} com garantia total.`,
+      whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a cotação das molas para o seu veículo:\n\nOpção 1\n✅ Peça: Molas de Suspensão (o par)\n✅ Marca Recomendada: COFAP (Original de montadora)\n✅ Código: MC.EFO201\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: Molas de Suspensão (o par)\n✅ Marca Recomendada: FAMA\n✅ Código: FM-7014\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Substituição sempre no par para evitar desnível da carroceria e desgaste prematuro de pneus.\n\nQualquer dúvida, estou à disposição!`,
+    };
+  }
+
+  // 14. Fallback genérico alinhado estritamente à linha homologada
   return {
     partKeywords: [part.toLowerCase()],
     vehicleKeywords: [model.toLowerCase()],
@@ -1245,10 +1911,10 @@ export function generateSmartFallbackPart(
       {
         brand: 'Nakata',
         code: `NK-${Math.floor(1000 + Math.random() * 9000)}`,
-        lineOrType: 'Reposição Linha Leve',
+        lineOrType: 'Reposição Linha Leve Homologada',
         popularInBrazil: true,
         salesVolume: 'Mais vendida',
-        tier: '2ª Linha',
+        tier: '1ª Linha',
         verdictBadge: 'Melhor Custo-Benefício',
         technicalDetails: 'Desenvolvida rigorosamente nas tolerâncias originais de montadora.',
       },
@@ -1296,7 +1962,7 @@ export function generateSmartFallbackPart(
       { name: 'Itens de Fixação e Vedação', reason: 'Substituição preventiva recomendada.', referenceCodes: 'Sabó / Jahu' },
     ],
     quickSalesPitch: `Temos opções originais e de reposição garantida para ${part} do ${model}.`,
-    whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação de ${part.toLowerCase()} para o seu veículo:\n\nOpção 1\n✅ Peça: ${part}\n✅ Marca Recomendada: Bosch (Original de montadora)\n✅ Código: 0 986 F00 241\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] a peça.\n\nOpção 2\n✅ Peça: ${part}\n✅ Marca Recomendada: Nakata\n✅ Código: NK-4921\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] a peça.\n\n⚠️ Dica do Especialista: Conferir código e ano/modelo do veículo no balcão antes da montagem definitiva.\n\nQualquer dúvida, estou à disposição!`,
+    whatsappMessage: `Orçamento de Roncoli - ${mClean}\n\nOlá! Segue a especificação de ${part.toLowerCase()} para o seu veículo:\n\nOpção 1\n✅ Peça: ${part}\n✅ Marca Recomendada: Bosch (Original de montadora)\n✅ Código: 0 986 F00 241\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\nOpção 2\n✅ Peça: ${part}\n✅ Marca Recomendada: Nakata\n✅ Código: NK-4921\n✅ Preço: (deixar vazio para preenchimento manual)\n💰 Valor: R$ [Inserir Preço] total.\n\n⚠️ Dica do Especialista: Conferir código e ano/modelo do veículo no balcão antes da montagem definitiva.\n\nQualquer dúvida, estou à disposição!`,
   };
 }
 

@@ -4,6 +4,7 @@ import { PartSearchForm } from './components/PartSearchForm';
 import { PartResultCard } from './components/PartResultCard';
 import { PartFollowUpChat } from './components/PartFollowUpChat';
 import { SearchHistorySidebar } from './components/SearchHistorySidebar';
+import { OfficialCatalogModal } from './components/OfficialCatalogModal';
 import { SearchRequest, SearchResult } from './types';
 import { findOfflinePart, generateSmartFallbackPart } from './data/offlineCatalog';
 import { getRioClaroSuppliersForPart } from './data/rioClaroSuppliers';
@@ -47,6 +48,7 @@ export default function App() {
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState<boolean>(false);
   const [formResetKey, setFormResetKey] = useState<number>(0);
 
   const [history, setHistory] = useState<SearchResult[]>(() => {
@@ -206,6 +208,7 @@ export default function App() {
         historyCount={history.length}
         onToggleHistory={() => setIsHistoryOpen(!isHistoryOpen)}
         isHistoryOpen={isHistoryOpen}
+        onOpenCatalogModal={() => setIsCatalogModalOpen(true)}
       />
 
       {/* Main App Container */}
@@ -223,15 +226,22 @@ export default function App() {
               <PhoneCall className="w-3.5 h-3.5" />
             </div>
             <span className="leading-relaxed">
-              <strong className="text-zinc-900 dark:text-white font-bold">Atendimento Balcão & Televendas:</strong> Preencha a peça e o veículo. O sistema localiza o <strong>código OEM genuíno</strong> e referências cruzadas das marcas líderes (Bosch, Nakata, Cofap, Mahle...) prontas para conferência e cópia.
+              <strong className="text-zinc-900 dark:text-white font-bold">Atendimento Balcão & Televendas:</strong> Preencha a peça e o veículo. O sistema cruza os dados com a <strong>linha oficial de marcas e catálogo homologado</strong> (LUK, Sachs, Valeo, Nakata, Monroe, Cofap, KYB, Bosch, NGK, Mahle, MTE-Thomson, Valclei, Cobreq, SYL, Tecfil, Sabó...).
             </span>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+            <button
+              type="button"
+              onClick={() => setIsCatalogModalOpen(true)}
+              className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+            >
+              📋 Ver Linha Homologada
+            </button>
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hidden sm:inline-block">
               Cópia Instantânea
             </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hidden sm:inline-block">
               WhatsApp Pronto
             </span>
           </div>
@@ -384,6 +394,13 @@ export default function App() {
         history={history}
         onSelectResult={handleSelectHistoryItem}
         onClearHistory={handleClearHistory}
+        darkMode={darkMode}
+      />
+
+      {/* Official Homologated Brand Catalog Modal */}
+      <OfficialCatalogModal
+        isOpen={isCatalogModalOpen}
+        onClose={() => setIsCatalogModalOpen(false)}
         darkMode={darkMode}
       />
 

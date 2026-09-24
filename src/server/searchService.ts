@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { findOfflinePart, generateSmartFallbackPart } from '../data/offlineCatalog';
 import { getRioClaroSuppliersForPart } from '../data/rioClaroSuppliers';
+import { OFFICIAL_BRAND_CATALOG_GUIDE_TEXT } from '../data/officialBrandRules';
 
 export function getAiClient(): GoogleGenAI | null {
   const apiKey =
@@ -142,9 +143,13 @@ INSTRUÇÕES DE PESQUISA NA WEB & PRECISÃO DE CATÁLOGO:
     - Chevrolet Corsa Classic antigo (B) / Celta: Usa Cobreq N-325 / Fras-le PD/60.
 - Se o usuário informar detalhes como 'frente montana', 'sistema teves', 'varga', 'disco 240mm', 'com ar condicionado', 'com ABS' ou código gravado na peça antiga, você DEVE priorizar e cruzar essas informações para entregar a aplicação exata sem margem de erro.
 
-3. MARCAS PRIORITÁRIAS A SEREM PESQUISADAS:
-PESQUISE E PRIORIZE EXCLUSIVAMENTE AS SEGUINTES MARCAS PRINCIPAIS (SE APLICÁVEIS À CATEGORIA DA PEÇA):
-LUK, Valeo, Sachs, Nakata, Monroe, Bosch, NGK, SKF, DS, COFAP, CONTINENTAL, DAYCO, DISAUTO, FAMA, FANIA, GATES, FLORIO, IGUAÇU, IMA, JAHU, MOBENSANI, KYB, MAHLE, THOMSON, VISCONDE, TSA, URBA, VALCLEI, ZF AFTERMARKET, VETOR, SCHADEK, BROSOL, JAMAICA, NOVO KIT, NK, DPL, TECFIL, SABO, TARANTO, MAGNETI MARELLI, SYL, COBREQ, TECPADS, WAHLER.
+3. LINHA OFICIAL DE MARCAS E CATÁLOGO HOMOLOGADO (REGRA DE OURO):
+AS PESQUISAS DAS PEÇAS DEVEM SEGUIR ESTRITAMENTE ESSA LINHA DE CATÁLOGO E PEÇAS A SEGUIR:
+${OFFICIAL_BRAND_CATALOG_GUIDE_TEXT}
+
+REGRAS RÍGIDAS DE ATRIBUIÇÃO DE MARCAS:
+- NUNCA atribua a uma marca itens fora do seu catálogo homologado (exemplo: para sensores térmicos/cebolão use MTE-Thomson, Valclei, Iguaçu, Wahler; para cabos de comando use Fania; para borrachas/vedação/mangueiras use Jahu, Jamaica, Novo Kit; para bobinas/velas use NGK, Bosch; para freios use Cobreq, SYL, Tecpads; para bombas d'água use Urba, Schadek, SKF, Vetor; para radiadores use Visconde, Valeo; para embreagens use LUK, Sachs, Valeo; para amortecedores e suspensão use Nakata, Monroe, Cofap, KYB, ZF Aftermarket; para filtros use Tecfil, Mahle; para juntas e retentores use Sabó, Taranto; para feixes de mola use Fama, Cofap; para bombas de combustível mecânicas/elétricas e carburadores use Brosol, Schadek, Bosch, DS, TSA).
+- Priorize sempre as marcas especialistas de 1ª e 2ª linha listadas acima para a categoria da peça solicitada.
 
 Para cada opção aftermarket identificada, forneça:
 - 'salesVolume': 'Mais vendida' | 'Média saída' | 'Menos vendida'
@@ -392,7 +397,7 @@ DÚVIDA DO VENDEDOR / CLIENTE:
 INSTRUÇÕES:
 1. Responda de forma rápida, precisa, objetiva e orientada a balcão (sem enrolação).
 2. Se a dúvida for sobre compatibilidade (ex: "serve no modelo com ABS?", "muda se for flex?"), responda com clareza SIM, NÃO ou O QUE CONFERIR.
-3. Se houver código de peça específico para a variação da pergunta, mencione o código e a fabricante (Bosch, Cofap, Nakata, Luk, etc.).
+3. Se houver código de peça específico para a variação da pergunta, mencione o código e a fabricante seguindo estritamente a linha de marcas homologadas (LUK, Sachs, Valeo, Nakata, Monroe, Cofap, KYB, ZF Aftermarket, Mahle, MTE-Thomson, Visconde, Valclei, Urba, Schadek, Brosol, Florio, Iguaçu, Wahler, Continental, Dayco, Gates, Jahu, Novo Kit, Jamaica, Bosch, NGK/NTK, DS, TSA, Magneti Marelli, SKF, IMA, Vetor, NK, Cobreq, SYL, Tecpads, Tecfil, Sabó, Taranto, Fama, Fania, DPL).
 4. Destaque uma dica prática de conferência na peça física (ex: contar dentes, medir rosca, formato do plugue elétrico).
 5. Responda em Português do Brasil.`;
 

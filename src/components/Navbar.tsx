@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, PhoneCall, History, Moon, Sun, RotateCcw, ShieldCheck } from 'lucide-react';
+import { Sparkles, PhoneCall, History, Moon, Sun, RotateCcw, ShieldCheck, BookOpen } from 'lucide-react';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -8,6 +8,7 @@ interface NavbarProps {
   historyCount: number;
   onToggleHistory: () => void;
   isHistoryOpen: boolean;
+  onOpenCatalogModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   historyCount,
   onToggleHistory,
   isHistoryOpen,
+  onOpenCatalogModal,
 }) => {
   return (
     <header
@@ -51,6 +53,25 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Homologated Brands Catalog Button */}
+          {onOpenCatalogModal && (
+            <button
+              id="btn-open-brand-catalog"
+              type="button"
+              onClick={onOpenCatalogModal}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                darkMode
+                  ? 'bg-blue-950/40 hover:bg-blue-900/50 text-blue-300 border-blue-800/80 hover:border-blue-700'
+                  : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 shadow-2xs'
+              }`}
+              title="Consultar marcas e linhas de peças homologadas no catálogo"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-blue-500" />
+              <span className="hidden sm:inline">Marcas Homologadas</span>
+              <span className="sm:hidden">Catálogo</span>
+            </button>
+          )}
+
           {/* New Search Button */}
           <button
             id="btn-new-inquiry"
