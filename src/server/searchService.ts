@@ -169,14 +169,14 @@ Opção 1
 ✅ Marca Recomendada: [Marca 1ª Linha] (Original de montadora)
 ✅ Código: [Código]
 ✅ Preço: (deixar vazio para preenchimento manual)
-💰 Valor: R$ [Inserir Preço] [o jogo / a peça / o kit].
+💰 Valor: R$ [Inserir Preço] total.
 
 Opção 2
 ✅ Peça: [Nome da Peça] ([quantidade que vai no carro])
 ✅ Marca Recomendada: [Marca Alternativa]
 ✅ Código: [Código]
 ✅ Preço: (deixar vazio para preenchimento manual)
-💰 Valor: R$ [Inserir Preço] [o jogo / a peça / o kit].
+💰 Valor: R$ [Inserir Preço] total.
 
 ⚠️ Dica do Especialista: [Dica técnica importante sobre aplicação ou troca preventiva]
 

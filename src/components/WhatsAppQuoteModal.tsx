@@ -33,11 +33,11 @@ export const WhatsAppQuoteModal: React.FC<WhatsAppQuoteModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [customerPhone, setCustomerPhone] = useState('');
 
-  // Quantidade e tipo de venda (ex: o jogo, a unidade, o par, o kit)
+  // Quantidade e tipo de venda no orçamento (ex: total, a unidade, o par, o kit)
   const unitSuffix = useMemo(() => {
     const p = (result.partSummary + ' ' + (result.quantityUsedInVehicle || '')).toLowerCase();
     if (p.includes('vela') || p.includes('pastilha') || p.includes('jogo')) {
-      return 'o jogo';
+      return 'total';
     }
     if (p.includes('par') || p.includes('amortecedor') || p.includes('disco') || p.includes('mola')) {
       return 'o par';
