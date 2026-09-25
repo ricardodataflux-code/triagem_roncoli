@@ -1,7 +1,24 @@
 import React, { useState } from 'react';
-import { Search, Car, Wrench, Calendar, Cpu, AlertCircle, ChevronDown, ChevronUp, Zap, Sliders, Info } from 'lucide-react';
+import {
+  Search,
+  Car,
+  Wrench,
+  Calendar,
+  Cpu,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  Zap,
+  Sliders,
+  Info,
+  HelpCircle,
+  ShieldCheck,
+  CheckCircle2,
+} from 'lucide-react';
 import { SearchRequest } from '../types';
 import { POPULAR_PRESETS, POPULAR_PARTS_SUGGESTIONS, CarPreset } from '../data/presets';
+import { detectPrecisionQuestions, PrecisionQuestion } from '../data/precisionQuestions';
+import { PrecisionQuestionsModal } from './PrecisionQuestionsModal';
 
 interface PartSearchFormProps {
   darkMode: boolean;
@@ -30,6 +47,9 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
+  const [precisionQuestions, setPrecisionQuestions] = useState<PrecisionQuestion[]>([]);
+  const [alwaysVerifyQuestions, setAlwaysVerifyQuestions] = useState(true);
 
   const handleInputChange = (field: keyof SearchRequest, value: string) => {
     setFormData((prev) => ({
@@ -51,10 +71,90 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
     setShowSuggestions(false);
   };
 
+  const checkIfQuestionsNeeded = (data: SearchRequest, questions: PrecisionQuestion[]): boolean => {
+    if (!questions || questions.length === 0) return false;
+    const partLower = (data.part || '').toLowerCase();
+    const notesLower = (data.notes || '').toLowerCase();
+
+    // 1. Radiador: Deve ter "sem ar" ou "com ar"
+    if (partLower.includes('radiador')) {
+      const hasAc =
+        notesLower.includes('sem ar') ||
+        notesLower.includes('s/ ar') ||
+        notesLower.includes('com ar') ||
+        notesLower.includes('c/ ar');
+      if (!hasAc) return true;
+    }
+
+    // 2. Freios Chevrolet: Deve diferenciar Frente Montana vs Celta Classic vs Onix
+    if (partLower.includes('pastilha') || partLower.includes('freio')) {
+      const modelLower = (data.model || '').toLowerCase();
+      if (
+        modelLower.includes('corsa') ||
+        modelLower.includes('montana') ||
+        modelLower.includes('celta') ||
+        modelLower.includes('prisma')
+      ) {
+        const hasGen =
+          notesLower.includes('frente montana') ||
+          notesLower.includes('classic') ||
+          notesLower.includes('celta') ||
+          notesLower.includes('onix') ||
+          notesLower.includes('n-360') ||
+          notesLower.includes('n-325') ||
+          notesLower.includes('n-382');
+        if (!hasGen) return true;
+      }
+    }
+
+    // 3. Embreagem: Deve diferenciar Atuador vs Rolamento
+    if (partLower.includes('embreagem')) {
+      const hasClutchType =
+        notesLower.includes('atuador') ||
+        notesLower.includes('rolamento') ||
+        notesLower.includes('cabo');
+      if (!hasClutchType) return true;
+    }
+
+    // 4. Bomba d'água GM: 19 dentes vs 21/23 dentes
+    if (partLower.includes('bomba') && (partLower.includes('agua') || partLower.includes('água'))) {
+      const hasTeeth =
+        notesLower.includes('dente') ||
+        notesLower.includes('ub0155') ||
+        notesLower.includes('19 d');
+      if (!hasTeeth) return true;
+    }
+
+    return false;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.part.trim() || !formData.model.trim()) return;
+
+    const questions = detectPrecisionQuestions(formData);
+    const mustAsk = checkIfQuestionsNeeded(formData, questions);
+
+    // Se houver perguntas críticas não respondidas ou se a pré-verificação estiver ativa
+    if (mustAsk || (alwaysVerifyQuestions && questions.length > 0 && !formData.notes?.includes('('))) {
+      setPrecisionQuestions(questions);
+      setIsPrecisionModalOpen(true);
+      return;
+    }
+
     onSearch(formData);
+  };
+
+  const handleOpenPrecisionQuestionsManually = () => {
+    const questions = detectPrecisionQuestions(formData);
+    setPrecisionQuestions(questions);
+    setIsPrecisionModalOpen(true);
+  };
+
+  const handleConfirmPrecisionQuestions = (finalRequest: SearchRequest) => {
+    setFormData(finalRequest);
+    setIsPrecisionModalOpen(false);
+    onSearch(finalRequest);
   };
 
   const handleClear = () => {
@@ -348,8 +448,50 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
           )}
         </div>
 
-        {/* Action Button (Executive Obsidian Style) */}
-        <div className="pt-2">
+        {/* Action Button & Precision Verification Callout */}
+        <div className="pt-2 space-y-3">
+          {/* Precision Questions Notice & Shortcut */}
+          <div
+            className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all ${
+              darkMode
+                ? 'bg-blue-950/20 border-blue-900/40 text-blue-300'
+                : 'bg-blue-50/80 border-blue-200 text-blue-900'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+              <div>
+                <p className="font-bold text-xs flex items-center gap-1.5">
+                  <span>Pré-Verificação Técnica de Balcão (Anti-Inconsistência)</span>
+                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold">
+                    100% Preciso
+                  </span>
+                </p>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Faz as perguntas técnicas obrigatórias de montadora (ar condicionado, câmbio, geração da pinça) antes de concluir a cotação.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handleOpenPrecisionQuestionsManually}
+                disabled={!formData.part.trim() || !formData.model.trim()}
+                className={`px-3 py-1.5 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all ${
+                  !formData.part.trim() || !formData.model.trim()
+                    ? 'opacity-50 cursor-not-allowed border-transparent bg-zinc-200 dark:bg-zinc-800 text-zinc-400'
+                    : darkMode
+                    ? 'bg-blue-900/60 hover:bg-blue-800 text-white border-blue-700'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-700 shadow-2xs'
+                }`}
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span>Responder Perguntas de Balcão</span>
+              </button>
+            </div>
+          </div>
+
           <button
             id="btn-submit-search"
             type="submit"
@@ -374,6 +516,16 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Interactive Precision Questions Modal */}
+      <PrecisionQuestionsModal
+        isOpen={isPrecisionModalOpen}
+        onClose={() => setIsPrecisionModalOpen(false)}
+        onConfirm={handleConfirmPrecisionQuestions}
+        originalRequest={formData}
+        questions={precisionQuestions}
+        darkMode={darkMode}
+      />
 
       {/* Quick Presets Bar */}
       <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-800">

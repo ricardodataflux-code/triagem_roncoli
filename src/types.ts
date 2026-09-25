@@ -25,6 +25,7 @@ export interface CrossReference {
   technicalDetails?: string;
   persuasiveDetails?: string;
   warrantyInfo?: string;
+  catalogUrl?: string;
   imageUrl?: string;
 }
 

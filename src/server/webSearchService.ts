@@ -132,49 +132,300 @@ export function buildDirectSearchLinks(
 ): DirectSearchLink[] {
   const cleanVehicle = `${model} ${year || ''} ${notes || ''}`.trim();
   const baseQuery = `${part} ${cleanVehicle}`.trim();
+  const partLower = part.toLowerCase();
 
-  return [
+  const links: DirectSearchLink[] = [
     {
       label: 'Google Search Oficial',
       url: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} catalogo fabricante codigo original oem`)}`,
       type: 'google',
     },
+  ];
+
+  // Radiador / Arrefecimento: Visconde, Valeo, Magneti Marelli, Mahle
+  if (partLower.includes('radiador') || partLower.includes('resfriamento') || partLower.includes('colmeia')) {
+    links.push(
+      {
+        label: 'Catálogo Visconde / Modine',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:visconde.com.br OR "visconde" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Valeo Service',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:valeoservice.com.br OR "valeo" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Magneti Marelli',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"magneti marelli" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Mahle / Behr',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"mahle" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Termostática / Sensores / Cebolão / Flanges: MTE-Thomson, Valclei, Wahler, Iguaçu, Florio
+  else if (
+    partLower.includes('termostat') ||
+    partLower.includes('sensor') ||
+    partLower.includes('cebolao') ||
+    partLower.includes('cebolão') ||
+    partLower.includes('temperatura') ||
+    partLower.includes('flange') ||
+    partLower.includes('tubo') ||
+    partLower.includes('reservatorio') ||
+    partLower.includes('reservatório') ||
+    partLower.includes('tampa')
+  ) {
+    links.push(
+      {
+        label: 'Catálogo MTE-Thomson',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"mte-thomson" OR "thomson" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Valclei',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"valclei" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Wahler',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"wahler" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Iguaçu / Florio',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"iguaçu" OR "florio" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Bombas: Urba, Schadek, Brosol, SKF
+  else if (partLower.includes('bomba') || partLower.includes('carburador') || partLower.includes('gicleur')) {
+    links.push(
+      {
+        label: 'Catálogo Urba (Água)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"urba" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Schadek (Óleo/Água)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"schadek" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Brosol (Combustível)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"brosol" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo SKF',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"skf" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Embreagem: LUK, Sachs, Valeo
+  else if (partLower.includes('embreagem') || partLower.includes('plato') || partLower.includes('platô') || partLower.includes('disco') && !partLower.includes('freio') || partLower.includes('atuador')) {
+    links.push(
+      {
+        label: 'Catálogo LUK Schaeffler',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:schaeffler.com.br OR "luk" "repset" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Sachs ZF',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:aftermarket.zf.com OR "sachs" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Valeo',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"valeo" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Suspensão e Direção: Nakata, Cofap, Monroe, KYB, ZF
+  else if (
+    partLower.includes('amortecedor') ||
+    partLower.includes('pivo') ||
+    partLower.includes('pivô') ||
+    partLower.includes('barra') ||
+    partLower.includes('terminal') ||
+    partLower.includes('bandeja') ||
+    partLower.includes('bucha') ||
+    partLower.includes('mola')
+  ) {
+    links.push(
+      {
+        label: 'Catálogo Nakata',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:catalogo.nakata.com.br OR "nakata" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Cofap',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:catalogo.cofap.com.br OR "cofap" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Monroe',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`site:monroe.com.br OR "monroe" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo KYB / ZF',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"kyb" OR "zf aftermarket" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Freios: Cobreq, SYL, Tecpads
+  else if (partLower.includes('freio') || partLower.includes('pastilha') || partLower.includes('sapata') || partLower.includes('lona') || partLower.includes('disco de freio')) {
+    links.push(
+      {
+        label: 'Catálogo Cobreq',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"cobreq" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo SYL',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"syl" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Tecpads',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"tecpads" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Correias / Mangueiras: Continental, Dayco, Gates, Jahu, Jamaica, Novo Kit
+  else if (partLower.includes('correia') || partLower.includes('tensor') || partLower.includes('mangueira') || partLower.includes('borracha') || partLower.includes('coifa') || partLower.includes('coxim')) {
+    links.push(
+      {
+        label: 'Catálogo Continental (Contitech)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"continental" OR "contitech" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Gates',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"gates" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Dayco',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"dayco" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Jahu / Jamaica / Novo Kit',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"jahu" OR "jamaica" OR "novo kit" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Ignição / Elétrica / Injeção: Bosch, NGK, DS, TSA, Magneti Marelli, DPL
+  else if (partLower.includes('vela') || partLower.includes('cabo') || partLower.includes('bobina') || partLower.includes('bico') || partLower.includes('injecao') || partLower.includes('injeção') || partLower.includes('sensor de nivel') || partLower.includes('rele') || partLower.includes('relé') || partLower.includes('chicote')) {
+    links.push(
+      {
+        label: 'Catálogo Bosch',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"bosch" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo NGK / NTK',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"ngk" OR "ntk" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo DS / TSA',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"ds" OR "tsa" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Magneti Marelli',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"magneti marelli" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Rolamentos / Roda: SKF, IMA, Vetor, Nakata
+  else if (partLower.includes('rolamento') || partLower.includes('cubo') || partLower.includes('homocinetica') || partLower.includes('homocinética') || partLower.includes('trizeta') || partLower.includes('tulipa')) {
+    links.push(
+      {
+        label: 'Catálogo SKF',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"skf" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo IMA',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"ima" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Vetor / Nakata',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"vetor" OR "nakata" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+  // Filtros / Juntas / Cabos: Tecfil, Mahle, Sabó, Taranto, Fania, Fama
+  else if (partLower.includes('filtro') || partLower.includes('junta') || partLower.includes('retentor') || partLower.includes('cabo de comando') || partLower.includes('cabo')) {
+    links.push(
+      {
+        label: 'Catálogo Tecfil (Filtros)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"tecfil" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Sabó (Vedação)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"sabo" OR "sabó" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Taranto',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"taranto" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Fania (Cabos)',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"fania" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  } else {
+    links.push(
+      {
+        label: 'Catálogo Fabricante Líder',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"catalogo" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      },
+      {
+        label: 'Catálogo Aftermarket Brasil',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`"autopeças" ${part} ${cleanVehicle}`)}`,
+        type: 'catalog',
+      }
+    );
+  }
+
+  // Peças Originais GM / Montadora e Lojas Oficiais
+  links.push(
     {
-      label: 'Catálogo Visconde / Modine',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`site:visconde.com.br OR "visconde" ${part} ${model} ${notes || ''}`)}`,
-      type: 'catalog',
-    },
-    {
-      label: 'Catálogo Valeo Service',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`site:valeoservice.com.br OR "valeo" ${part} ${model} ${notes || ''}`)}`,
-      type: 'catalog',
-    },
-    {
-      label: 'Catálogo Magneti Marelli',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`"magneti marelli" ${part} ${model} ${notes || ''}`)}`,
-      type: 'catalog',
-    },
-    {
-      label: 'Catálogo Mahle / Behr',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`"mahle" ${part} ${model} ${notes || ''}`)}`,
-      type: 'catalog',
-    },
-    {
-      label: 'Catálogo Nakata',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`site:catalogo.nakata.com.br OR "nakata" ${part} ${model}`)}`,
-      type: 'catalog',
-    },
-    {
-      label: 'Peças Originais GM / Accioly',
-      url: `https://www.google.com/search?q=${encodeURIComponent(`site:acciolygm.com.br OR site:chevroletnova.com.br ${part} ${model} ${notes || ''}`)}`,
+      label: 'Concessionárias & Peças OEM',
+      url: `https://www.google.com/search?q=${encodeURIComponent(`codigo oem original "${part}" ${cleanVehicle}`)}`,
       type: 'oem',
     },
     {
       label: 'MercadoLivre (Lojas Oficiais & Catálogos)',
       url: `https://lista.mercadolivre.com.br/${encodeURIComponent(`${part} ${cleanVehicle} original`)}`,
       type: 'marketplace',
-    },
-  ];
+    }
+  );
+
+  return links;
 }
 
 export async function executeMultiSourceWebSearch(params: {
@@ -470,11 +721,11 @@ export async function executeMultiSourceWebSearch(params: {
   // If no items were fetched from network, provide primary verified sources
   if (sourcesList.length === 0) {
     sourcesList.push(
-      { uri: `https://www.google.com/search?q=${encodeURIComponent(`${part} ${model} ${year || ''} ${notes || ''}`)}`, title: 'Google Search Oficial' },
-      { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Oficial Nakata' },
-      { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Oficial Bosch' },
-      { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Oficial Cofap' },
-      { uri: 'https://catalogo.fras-le.com', title: 'Catálogo Oficial Fras-le' }
+      { uri: `https://www.google.com/search?q=${encodeURIComponent(`${part} ${model} ${year || ''} ${notes || ''}`)}`, title: 'Google Search Oficial', snippet: 'Pesquisa oficial no Google para especificações de catálogo e códigos OEM.' },
+      { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Oficial Nakata', snippet: 'Consulta oficial no catálogo de autopeças Nakata Brasil.' },
+      { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Oficial Bosch', snippet: 'Catálogo técnico oficial Bosch Aftermarket.' },
+      { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Oficial Cofap', snippet: 'Catálogo oficial de amortecedores e suspensão Cofap.' },
+      { uri: 'https://catalogo.fras-le.com', title: 'Catálogo Oficial Fras-le', snippet: 'Catálogo técnico de freios Fras-le.' }
     );
   }
 

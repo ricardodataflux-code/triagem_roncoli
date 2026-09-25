@@ -15,6 +15,9 @@ export interface OfflinePartRecord {
     tier?: '1ª Linha' | '2ª Linha' | '3ª Linha' | string;
     verdictBadge?: 'Melhor em Qualidade' | 'Melhor Custo-Benefício' | 'Melhor em Durabilidade' | 'Opção Econômica' | 'Mais Procurada' | string;
     technicalDetails?: string;
+    persuasiveDetails?: string;
+    warrantyInfo?: string;
+    catalogUrl?: string;
   }[];
   technicalSpecs: { label: string; value: string }[];
   applicationWarnings: string[];

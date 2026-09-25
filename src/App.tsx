@@ -317,7 +317,11 @@ export default function App() {
         {activeResult && !isLoading && (
           <div className="space-y-6">
             <PartFollowUpChat partContext={activeResult} darkMode={darkMode} />
-            <PartResultCard result={activeResult} darkMode={darkMode} />
+            <PartResultCard
+              result={activeResult}
+              darkMode={darkMode}
+              onRefineSearch={handleSearch}
+            />
           </div>
         )}
 

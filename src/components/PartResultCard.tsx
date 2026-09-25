@@ -19,25 +19,38 @@ import {
   Search,
   BookOpen,
   Sparkles,
+  HelpCircle,
 } from 'lucide-react';
-import { SearchResult } from '../types';
+import { SearchResult, SearchRequest } from '../types';
 import { evaluateAftermarketList, EvaluatedAftermarketItem } from '../utils/brandEvaluator';
 import { getRioClaroSuppliersForPart } from '../data/rioClaroSuppliers';
 import { PartImageModal } from './PartImageModal';
 import { WhatsAppQuoteModal } from './WhatsAppQuoteModal';
+import { detectPrecisionQuestions } from '../data/precisionQuestions';
+import { PrecisionQuestionsModal } from './PrecisionQuestionsModal';
 
 interface PartResultCardProps {
   result: SearchResult;
   darkMode: boolean;
+  onRefineSearch?: (request: SearchRequest) => void;
 }
 
-export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode }) => {
+export const PartResultCard: React.FC<PartResultCardProps> = ({
+  result,
+  darkMode,
+  onRefineSearch,
+}) => {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const [selectedItemForImage, setSelectedItemForImage] = useState<EvaluatedAftermarketItem | null>(null);
   const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
+
+  const precisionQuestions = useMemo(() => {
+    return detectPrecisionQuestions(result.query);
+  }, [result.query]);
 
   const evaluatedAftermarketCodes = useMemo(() => {
     return evaluateAftermarketList(
@@ -174,6 +187,18 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
             </div>
 
             <div className="flex items-center gap-2">
+              {onRefineSearch && precisionQuestions && precisionQuestions.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setIsPrecisionModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 transition-all shadow-2xs active:scale-95"
+                  title="Trocar entre Com/Sem Ar, Câmbio ou Pinça"
+                >
+                  <HelpCircle className="w-3.5 h-3.5" />
+                  <span>Trocar Versão (Perguntas)</span>
+                </button>
+              )}
+
               {/* WhatsApp Quote Builder with Multiple Choice Brands (Verde Palette) */}
               <button
                 id="btn-open-whatsapp-modal"
@@ -834,6 +859,21 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
         evaluatedAftermarketCodes={evaluatedAftermarketCodes}
         darkMode={darkMode}
       />
+
+      {/* Interactive Precision Questions Modal for fast variant switching */}
+      {onRefineSearch && (
+        <PrecisionQuestionsModal
+          isOpen={isPrecisionModalOpen}
+          onClose={() => setIsPrecisionModalOpen(false)}
+          onConfirm={(finalRequest) => {
+            setIsPrecisionModalOpen(false);
+            onRefineSearch(finalRequest);
+          }}
+          originalRequest={result.query}
+          questions={precisionQuestions}
+          darkMode={darkMode}
+        />
+      )}
     </>
   );
 };
