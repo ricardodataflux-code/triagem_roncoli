@@ -8,6 +8,8 @@ export interface BrandRule {
   description: string;
   tier: '1ª Linha' | '2ª Linha' | '3ª Linha';
   verdictBadge: 'Melhor em Qualidade' | 'Melhor Custo-Benefício' | 'Melhor em Durabilidade' | 'Opção Econômica';
+  catalogUrl?: string;
+  codeSyntaxGuide?: string;
 }
 
 export interface CategoryCatalog {
@@ -672,6 +674,280 @@ export const OFFICIAL_CATALOG_CATEGORIES: CategoryCatalog[] = [
   },
 ];
 
+// Mapeamento oficial de portais de catálogo dos fabricantes para conferência direta
+export const OFFICIAL_BRAND_CATALOG_URLS: Record<string, { catalogUrl: string; domain: string; syntaxGuide: string }> = {
+  luk: {
+    catalogUrl: 'https://aftermarket.schaeffler.com.br',
+    domain: 'schaeffler.com.br',
+    syntaxGuide: 'Kits RepSet com padrão 6xx xxxx xx (ex: 620 3020 00, 619 3001 00, 622 3095 00)',
+  },
+  valeo: {
+    catalogUrl: 'https://www.valeoservice.com.br',
+    domain: 'valeoservice.com.br',
+    syntaxGuide: 'Kits de embreagem com 6 dígitos (ex: 228205, 826354) e palhetas C/VF',
+  },
+  sachs: {
+    catalogUrl: 'https://aftermarket.zf.com/br',
+    domain: 'aftermarket.zf.com',
+    syntaxGuide: 'Conjuntos com prefixo 3000 xxx xxx ou 4 dígitos (ex: 6284, 6588, 3000 951 042)',
+  },
+  nakata: {
+    catalogUrl: 'https://catalogo.nakata.com.br',
+    domain: 'catalogo.nakata.com.br',
+    syntaxGuide: 'Amortecedores HG/SE (ex: HG 33010), Pastilhas NKF xxxxP, Pivôs N xxxx, Homocinéticas NJH/NKJ',
+  },
+  monroe: {
+    catalogUrl: 'https://www.monroe.com.br',
+    domain: 'monroe.com.br',
+    syntaxGuide: 'Amortecedores OESpectrum com prefixo SP/74/G (ex: SP042, SP099, 749007SP)',
+  },
+  cofap: {
+    catalogUrl: 'https://catalogo.cofap.com.br',
+    domain: 'catalogo.cofap.com.br',
+    syntaxGuide: 'Amortecedores dianteiros GP/MP (ex: GP32488, GP30132), traseiros GL/B, molas MC.Exxx',
+  },
+  kyb: {
+    catalogUrl: 'https://kyb.com.br',
+    domain: 'kyb.com.br',
+    syntaxGuide: 'Amortecedores linha Excel-G com códigos 33xxxx ou 34xxxx (ex: 333838, 343419)',
+  },
+  'zf aftermarket': {
+    catalogUrl: 'https://aftermarket.zf.com/br',
+    domain: 'aftermarket.zf.com',
+    syntaxGuide: 'Consolidação das marcas Sachs, Lemförder e TRW',
+  },
+  mahle: {
+    catalogUrl: 'https://catalog.mahle-aftermarket.com/bra',
+    domain: 'mahle-aftermarket.com',
+    syntaxGuide: 'Filtros OC (óleo), LX (ar), KL (combustível), LA (cabine); válvulas VA/VE',
+  },
+  'thomson (mte-thomson)': {
+    catalogUrl: 'https://compre.mte-thomson.com.br',
+    domain: 'mte-thomson.com.br',
+    syntaxGuide: 'Sensores e cebolões de 4 a 5 dígitos (ex: 4050, 7040, 8830), válvulas VT xxx.xx',
+  },
+  visconde: {
+    catalogUrl: 'https://www.visconderadiadores.com.br',
+    domain: 'visconderadiadores.com.br',
+    syntaxGuide: 'Radiadores com prefixo RV (ex: RV 1255, RV 2304)',
+  },
+  valclei: {
+    catalogUrl: 'https://valclei.com.br',
+    domain: 'valclei.com.br',
+    syntaxGuide: 'Canos de água 11xx, carcaças 22xx/44xx, válvulas termostáticas VC-xxx',
+  },
+  urba: {
+    catalogUrl: 'https://urba-brosol.com.br',
+    domain: 'urba-brosol.com.br',
+    syntaxGuide: 'Bombas de água com prefixo UBxxxx (ex: UB0163, UB0150, UB0777, UB0948)',
+  },
+  schadek: {
+    catalogUrl: 'https://schadek.com.br',
+    domain: 'schadek.com.br',
+    syntaxGuide: 'Bombas de óleo 10.xxx e bombas de água 20.xxx (ex: 10.147, 20.084)',
+  },
+  brosol: {
+    catalogUrl: 'https://urba-brosol.com.br',
+    domain: 'urba-brosol.com.br',
+    syntaxGuide: 'Bombas de combustível mecânicas 21xxxx, elétricas e carburadores',
+  },
+  florio: {
+    catalogUrl: 'https://florio.com.br',
+    domain: 'florio.com.br',
+    syntaxGuide: 'Reservatórios de expansão e tampas pressurizadas com prefixo F-xxxx',
+  },
+  'iguaçu': {
+    catalogUrl: 'https://iguacu.ind.br',
+    domain: 'iguacu.ind.br',
+    syntaxGuide: 'Sensores térmicos, carcaças de água e cebolões (ex: 401.1157, 201.0820)',
+  },
+  wahler: {
+    catalogUrl: 'https://www.borgwarner.com',
+    domain: 'borgwarner.com',
+    syntaxGuide: 'Válvulas termostáticas padrão BorgWarner (ex: 4111.87, 3141.87)',
+  },
+  'continental (contitech)': {
+    catalogUrl: 'https://www.continental-aftermarket.com/br',
+    domain: 'continental-aftermarket.com',
+    syntaxGuide: 'Correias dentadas CTxxxx / CTxxxxK1 e correias Poly-V xPKxxxx (ex: CT1167K1, 6PK1195)',
+  },
+  dayco: {
+    catalogUrl: 'https://www.daycocatalogue.com',
+    domain: 'daycocatalogue.com',
+    syntaxGuide: 'Correias dentadas xxxSPxxxxx / kits KTBxxx e correias Poly-V xPKxxxx',
+  },
+  gates: {
+    catalogUrl: 'https://www.gatesbrasil.com.br',
+    domain: 'gatesbrasil.com.br',
+    syntaxGuide: 'Correias dentadas KSxxx (kits) / xxxxxXxx e correias Micro-V xPKxxxx',
+  },
+  jahu: {
+    catalogUrl: 'https://jahu.com.br',
+    domain: 'jahu.com.br',
+    syntaxGuide: 'Borrachas de vedação, canaletas, mangueiras e coxins (código JHxxxx)',
+  },
+  'novo kit': {
+    catalogUrl: 'https://novokit.com.br',
+    domain: 'novokit.com.br',
+    syntaxGuide: 'Kits de batente/coifa de amortecedor e homocinética (código NKxxxx)',
+  },
+  jamaica: {
+    catalogUrl: 'https://jamaica.com.br',
+    domain: 'jamaica.com.br',
+    syntaxGuide: 'Mangueiras automotivas de radiador, água e combustível (código JM-xxxx)',
+  },
+  bosch: {
+    catalogUrl: 'https://www.boschaftermarket.com/br',
+    domain: 'boschaftermarket.com',
+    syntaxGuide: 'Códigos originais de 10 dígitos (ex: 0 986 BB0 236, F 000 KE0 P01, 0 258 006 027)',
+  },
+  ngk: {
+    catalogUrl: 'https://ngkntk.com.br',
+    domain: 'ngkntk.com.br',
+    syntaxGuide: 'Velas BKR/LZKAR/SILZKR, bobinas Uxxxx, cabos SC-Gxx e sondas NTK OZAxxx',
+  },
+  ds: {
+    catalogUrl: 'https://www.ds.ind.br',
+    domain: 'ds.ind.br',
+    syntaxGuide: 'Reguladores de pressão 11xx, sensores MAP/velocidade e refis de bomba',
+  },
+  tsa: {
+    catalogUrl: 'https://tsa.ind.br',
+    domain: 'tsa.ind.br',
+    syntaxGuide: 'Sensores de nível de combustível e boias com código T-xxxx ou TSA-xxxx',
+  },
+  'magneti marelli': {
+    catalogUrl: 'https://catalogo.cofap.com.br',
+    domain: 'catalogo.cofap.com.br',
+    syntaxGuide: 'Injeção eletrônica, corpos de borboleta TBI e componentes elétricos MMxxxx',
+  },
+  skf: {
+    catalogUrl: 'https://www.skf.com.br',
+    domain: 'skf.com.br',
+    syntaxGuide: 'Rolamentos de roda VKBA xxxx, BAH-xxxx e cubos com rolamento integrado',
+  },
+  ima: {
+    catalogUrl: 'https://ima.ind.br',
+    domain: 'ima.ind.br',
+    syntaxGuide: 'Cubos de roda AL-xx / AL-xxx, juntas homocinéticas CV-xxx e trizetas',
+  },
+  vetor: {
+    catalogUrl: 'https://vetorautomotivos.com.br',
+    domain: 'vetorautomotivos.com.br',
+    syntaxGuide: 'Rolamentos, cubos e homocinéticas com código VTxxxx',
+  },
+  nk: {
+    catalogUrl: 'https://catalogo.nakata.com.br',
+    domain: 'catalogo.nakata.com.br',
+    syntaxGuide: 'Componentes de roda e transmissão Nakata (NKF xxxx)',
+  },
+  syl: {
+    catalogUrl: 'https://syl.com.br',
+    domain: 'syl.com.br',
+    syntaxGuide: 'Pastilhas de freio com código SYL xxxx (ex: SYL 1079, SYL 1248, SYL 2115)',
+  },
+  cobreq: {
+    catalogUrl: 'https://catalogo.cobreq.com.br',
+    domain: 'catalogo.cobreq.com.br',
+    syntaxGuide: 'Pastilhas dianteiras/traseiras N-xxx ou N-xxxx (ex: N-360, N-382, N-254, N-1356)',
+  },
+  tecpads: {
+    catalogUrl: 'https://tecpads.com.br',
+    domain: 'tecpads.com.br',
+    syntaxGuide: 'Pastilhas de freio de alta durabilidade com prefixo T-xxxx',
+  },
+  tecfil: {
+    catalogUrl: 'https://catalogo.tecfil.com.br',
+    domain: 'catalogo.tecfil.com.br',
+    syntaxGuide: 'Filtro óleo PSL/PEL, filtro ar ARL, combustível GI, cabine ACP (ex: PSL560, ARL8830)',
+  },
+  sabo: {
+    catalogUrl: 'https://catalogo.sabo.com.br',
+    domain: 'catalogo.sabo.com.br',
+    syntaxGuide: 'Retentores xxxxx BRAGF / xxxxx BRGP e jogos de juntas 80xxx / 75xxx',
+  },
+  taranto: {
+    catalogUrl: 'https://taranto.com.br',
+    domain: 'taranto.com.br',
+    syntaxGuide: 'Juntas de cabeçote MLS/fibra e parafusos com códigos 24xxxx / 41xxxx',
+  },
+  disauto: {
+    catalogUrl: 'https://disauto.com.br',
+    domain: 'disauto.com.br',
+    syntaxGuide: 'Distribuição multimarcas de autopeças leves e pesadas',
+  },
+  fama: {
+    catalogUrl: 'https://fama.ind.br',
+    domain: 'fama.ind.br',
+    syntaxGuide: 'Molas helicoidais e feixes de molas automotivos com prefixo FMA-xxxx',
+  },
+  fania: {
+    catalogUrl: 'https://fania.com.br',
+    domain: 'fania.com.br',
+    syntaxGuide: 'Cabos de comando (embreagem, freio de mão, acelerador) com código xx-xxx (ex: 61-230)',
+  },
+  dpl: {
+    catalogUrl: 'https://dpl.ind.br',
+    domain: 'dpl.ind.br',
+    syntaxGuide: 'Chicotes de reparo, soquetes, sensores e interruptores com código DPL-xxxx',
+  },
+};
+
+// Normalizador de texto para comparação de marcas
+function normalizeForComparison(val: string): string {
+  return (val || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+}
+
+// Obtém URL do catálogo do fabricante a partir do nome da marca
+export function getOfficialBrandCatalogUrl(brandName: string): string {
+  const norm = normalizeForComparison(brandName);
+  for (const [key, data] of Object.entries(OFFICIAL_BRAND_CATALOG_URLS)) {
+    if (norm.includes(key) || key.includes(norm)) {
+      return data.catalogUrl;
+    }
+  }
+  return `https://www.google.com/search?q=catalogo+oficial+autopecas+${encodeURIComponent(brandName)}`;
+}
+
+// Obtém guia de sintaxe oficial para a marca
+export function getOfficialBrandSyntaxGuide(brandName: string): string {
+  const norm = normalizeForComparison(brandName);
+  for (const [key, data] of Object.entries(OFFICIAL_BRAND_CATALOG_URLS)) {
+    if (norm.includes(key) || key.includes(norm)) {
+      return data.syntaxGuide;
+    }
+  }
+  return 'Código padrão do catálogo de reposição da fabricante';
+}
+
+// Verifica se a marca é oficialmente homologada para essa categoria de produto
+export function isBrandHomologatedForPart(brandName: string, partOrCategory: string): boolean {
+  const bNorm = normalizeForComparison(brandName);
+  const pNorm = normalizeForComparison(partOrCategory);
+
+  for (const cat of OFFICIAL_CATALOG_CATEGORIES) {
+    for (const b of cat.brands) {
+      if (normalizeForComparison(b.brand).includes(bNorm) || bNorm.includes(normalizeForComparison(b.brand))) {
+        // Verifica se os produtos ou a categoria cobrem a peça
+        if (normalizeForComparison(cat.categoryName).includes(pNorm) || pNorm.includes(normalizeForComparison(cat.categoryName))) {
+          return true;
+        }
+        for (const prod of b.products) {
+          const prodNorm = normalizeForComparison(prod);
+          if (prodNorm.includes(pNorm) || pNorm.includes(prodNorm)) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return true;
+}
+
 // Texto formatado para injeção mandatória no prompt da IA
 export const OFFICIAL_BRAND_CATALOG_GUIDE_TEXT = `
 DIRETRIZ MANDATÓRIA DE MARCAS E LINHAS DE CATÁLOGO (ESTRITAMENTE OBRIGATÓRIA):
@@ -733,4 +1009,34 @@ Você DEVE respeitar e priorizar com precisão absoluta as marcas e as suas resp
 • FAMA: Molas helicoidais e feixes de molas para suspensão de veículos leves e pesados.
 • FANIA: Cabos de comando (cabos de embreagem, acelerador, freio de mão, velocímetro, capô e abertura de portas).
 • DPL: Componentes elétricos e eletrônicos, chicotes automotivos, sensores, interruptores de pressão e relés.
+
+REGRA SUPREMA DE SINTAXE E CÓDIGOS REAIS DO FABRICANTE:
+- Os códigos informados NÃO PODEM SER INVENTADOS OU ESTIMADOS. Devem respeitar a sintaxe oficial do fabricante:
+  * Cobreq: Pastilhas começam com N- (ex: N-360, N-382, N-254, N-1356, N-1447, N-1250, N-2070). Sapatas 0xxx-CP.
+  * Nakata: Amortecedores HG xxxxx ou SE xxxxx; Pastilhas NKF xxxxP; Pivôs N xxxx; Homocinéticas NJH / NKJ; Bombas NKBA xxxxx.
+  * Cofap: Amortecedores dianteiros GPxxxxx / MPxxxxx; traseiros GLxxxxx / B.xxxxx; molas MC.Exxx; pastilhas PFCxxxxx.
+  * Monroe: Amortecedores SPxxx / 74xxxxSP / Gxxxx.
+  * KYB: Amortecedores 33xxxx / 34xxxx (Excel-G).
+  * LUK: Kits de embreagem 6xx xxxx xx (ex: 620 3020 00, 619 3001 00, 619 3127 00, 622 3095 00).
+  * Sachs: Kits de embreagem 3000 xxx xxx ou 6xxx (ex: 6284, 6588, 3000 951 042).
+  * Valeo: Kits de embreagem 6 dígitos (ex: 228205, 826354).
+  * Bosch: Códigos de 10 dígitos (ex: 0 986 BB0 236, F 000 KE0 P01, 0 258 006 027, 0 986 452 041).
+  * NGK: Velas BKR6E, BKR7ES, BPR6EY, LZKAR7A-D, SILZKR6B10E; Bobinas Uxxxx; Cabos SC-Gxx, ST-Vxx.
+  * MTE-Thomson: Sensores de 4 ou 5 dígitos (ex: 4050, 7040, 8830), Válvulas VT xxx.xx.
+  * Valclei: Carcaças e canos 11xx, 22xx, 44xx, VC-xxx.
+  * Urba: Bombas de água UBxxxx (ex: UB0163, UB0150, UB0170, UB0777, UB0948, UB0630).
+  * Schadek: Bombas de óleo 10.xxx e água 20.xxx (ex: 10.147, 20.084).
+  * Brosol: Bombas mecânicas 21xxxx, carburadores 22xxxx.
+  * Continental (Contitech): Correias dentadas CTxxxx ou kits CTxxxxK1; Poly-V xPKxxxx.
+  * Gates: Correias dentadas KSxxx (kits) ou xxxxxXxx; Micro-V xPKxxxx.
+  * Dayco: Correias dentadas xxxSPxxxxx / kits KTBxxx; Poly-V xPKxxxx.
+  * Tecfil: Filtro óleo PSLxxx/PELxxx, ar ARLxxxx, combustível GIxx/x, cabine ACPxxx.
+  * Mahle: Filtros OCxxx, LXxxxx, KLxxx, LAxxx; pistões/válvulas VAxxx.
+  * Sabó: Retentores xxxxx BRAGF, juntas 80xxx / 75xxx.
+  * Taranto: Juntas de cabeçote 24xxxx / 41xxxx.
+  * SKF: Rolamentos VKBA xxxx, BAH-xxxx.
+  * IMA: Cubos de roda AL-xx / AL-xxx.
+  * Fania: Cabos de comando xx-xxx (ex: 61-230, 34-110).
+  * SYL: Pastilhas SYL xxxx.
 `;
+

@@ -2,6 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { findOfflinePart, generateSmartFallbackPart } from '../data/offlineCatalog';
 import { getRioClaroSuppliersForPart } from '../data/rioClaroSuppliers';
 import { OFFICIAL_BRAND_CATALOG_GUIDE_TEXT } from '../data/officialBrandRules';
+import { executeMultiSourceWebSearch, DirectSearchLink } from './webSearchService';
 
 export function getAiClient(): GoogleGenAI | null {
   const apiKey =
@@ -116,6 +117,9 @@ export async function executePartSearch(params: SearchPartInput) {
     throw new Error('Peça e Modelo do veículo são obrigatórios.');
   }
 
+  // ETAPA 1: Realizar pesquisa profunda e abrangente na web e em catálogos de fabricantes
+  const liveWeb = await executeMultiSourceWebSearch({ part, model, year, engine, notes });
+
   const ai = getAiClient();
   let generateResult: { response: any; modelUsed: string; searchUsed: boolean } | null = null;
 
@@ -132,111 +136,58 @@ DADOS DO VEÍCULO E DA PEÇA INFORMADOS PELO VENDEDOR:
 - Detalhes / Observações adicionais: "${notes || 'Nenhum'}"
 - Placa ou Chassi informado: "${vinOrPlate || 'Nenhum'}"
 
-INSTRUÇÕES DE PESQUISA NA WEB & PRECISÃO DE CATÁLOGO:
-1. Faça uma pesquisa precisa na internet em catálogos originais (OEM) das montadoras e nas principais fabricantes de autopeças aftermarket comercializadas no Brasil (ex: Cobreq, Nakata, Fras-le, Bosch, Cofap, LUK, etc.).
-2. RIGIDEZ E PRECISÃO CIRÚRGICA DE CATÁLOGO (EVITAR ERROS DE BALCÃO):
-- ATENÇÃO SUPREMA AO CAMPO 'Detalhes / Observações adicionais' (notes), geração da carroceria, diâmetro de disco e sistema de freio/injeção.
-- Diferencie com precisão técnica submodelos e gerações brasileiras:
+DADOS REAIS DE PESQUISA NA WEB & CATÁLOGOS COLETADOS EM TEMPO REAL:
+${liveWeb.summaryText ? `[Trechos coletados em portais de peças e catálogos online]:\n${liveWeb.summaryText}\n` : 'Nenhum trecho web adicional retornado.'}
+${liveWeb.extractedOemCodes.length > 0 ? `[Códigos OEM oficiais detectados]: ${JSON.stringify(liveWeb.extractedOemCodes)}\n` : ''}
+${liveWeb.extractedAftermarketCodes.length > 0 ? `[Códigos Aftermarket de fabricante detectados]: ${JSON.stringify(liveWeb.extractedAftermarketCodes)}\n` : ''}
+
+INSTRUÇÕES RÍGIDAS DE PESQUISA NA WEB & PRECISÃO DE CATÁLOGO:
+1. Faça uma pesquisa precisa no Google Search e nos catálogos originais (OEM) das montadoras e nas principais fabricantes de autopeças aftermarket comercializadas no Brasil (ex: Visconde, Valeo, Magneti Marelli, Mahle, Cobreq, Nakata, Fras-le, Bosch, Cofap, LUK, etc.).
+2. NUNCA invente códigos. Utilize os códigos reais de catálogo dos fabricantes e montadoras.
+- ATENÇÃO SUPREMA AO CAMPO 'Detalhes / Observações adicionais' (notes):
+  * Exemplo Crítico de Radiadores Chevrolet Celta / Prisma (2006 a 2016):
+    - SEM AR CONDICIONADO: O código oficial do fabricante é VISCONDE 12223 (RV12223) / VALEO 733468R (ou 732770R / 735124R) / MAGNETI MARELLI RMM518001M / MAHLE CR 2135 / OEM GM 93337574. Espessura da colmeia: 23 mm.
+    - COM AR CONDICIONADO: O código oficial do fabricante é VISCONDE 12224 (RV12224) / VALEO 734914R / MAGNETI MARELLI RMM518002M / OEM GM 93337575. Espessura da colmeia: 30 mm.
+    - JAMAIS misture ou inverta os códigos com ar vs sem ar!
   * Exemplo Crítico de Pastilhas de Freio Chevrolet:
-    - Chevrolet Corsa Hatch/Sedan G2 ("Frente Montana" 2002 a 2012), Montana 1.4/1.8 e Meriva: A pastilha dianteira oficial do catálogo é estritamente COBREQ N-360 / FRAS-LE PD/58 / NAKATA NKF1122P / BOSCH 0 986 BB0 236 / SYL 1079 (OEM GM 93374246). JAMAIS forneça Cobreq N-382 (que é exclusiva de Onix/Prisma/Cobalt) nem Cobreq N-325 (que é para Corsa Classic modelo B antigo / Celta).
-    - Chevrolet Onix / Prisma G1 / Cobalt / Spin: Usa Cobreq N-382 / Fras-le PD/1446.
-    - Chevrolet Corsa Classic antigo (B) / Celta: Usa Cobreq N-325 / Fras-le PD/60.
-- Se o usuário informar detalhes como 'frente montana', 'sistema teves', 'varga', 'disco 240mm', 'com ar condicionado', 'com ABS' ou código gravado na peça antiga, você DEVE priorizar e cruzar essas informações para entregar a aplicação exata sem margem de erro.
+    - Chevrolet Corsa Hatch/Sedan G2 ("Frente Montana" 2002 a 2012), Montana 1.4/1.8 e Meriva: COBREQ N-360 / FRAS-LE PD/58 / NAKATA NKF1122P (OEM GM 93374246). JAMAIS forneça Cobreq N-382 (Onix) nem Cobreq N-325 (Corsa Classic antigo / Celta).
 
 3. LINHA OFICIAL DE MARCAS E CATÁLOGO HOMOLOGADO (REGRA DE OURO):
-AS PESQUISAS DAS PEÇAS DEVEM SEGUIR ESTRITAMENTE ESSA LINHA DE CATÁLOGO E PEÇAS A SEGUIR:
 ${OFFICIAL_BRAND_CATALOG_GUIDE_TEXT}
-
-REGRAS RÍGIDAS DE ATRIBUIÇÃO DE MARCAS:
-- NUNCA atribua a uma marca itens fora do seu catálogo homologado (exemplo: para sensores térmicos/cebolão use MTE-Thomson, Valclei, Iguaçu, Wahler; para cabos de comando use Fania; para borrachas/vedação/mangueiras use Jahu, Jamaica, Novo Kit; para bobinas/velas use NGK, Bosch; para freios use Cobreq, SYL, Tecpads; para bombas d'água use Urba, Schadek, SKF, Vetor; para radiadores use Visconde, Valeo; para embreagens use LUK, Sachs, Valeo; para amortecedores e suspensão use Nakata, Monroe, Cofap, KYB, ZF Aftermarket; para filtros use Tecfil, Mahle; para juntas e retentores use Sabó, Taranto; para feixes de mola use Fama, Cofap; para bombas de combustível mecânicas/elétricas e carburadores use Brosol, Schadek, Bosch, DS, TSA).
-- Priorize sempre as marcas especialistas de 1ª e 2ª linha listadas acima para a categoria da peça solicitada.
 
 Para cada opção aftermarket identificada, forneça:
 - 'salesVolume': 'Mais vendida' | 'Média saída' | 'Menos vendida'
 - 'tier': '1ª Linha' (OEM / Original montadora) | '2ª Linha' (Reposição consolidada) | '3ª Linha' (Linha alternativa)
 - 'verdictBadge': 'Melhor em Qualidade' | 'Melhor Custo-Benefício' | 'Melhor em Durabilidade' | 'Opção Econômica'
 - 'technicalDetails': Detalhamento técnico de medidas, material, estrias, ligas ou compostos.
-- 'persuasiveDetails': Argumento técnico persuasivo e convincente para o cliente comprar esta marca (benefício prático, segurança, ausência de ruídos, certificação ISO/INMETRO, facilidade de instalação).
-- 'warrantyInfo': Termo de garantia recomendado no balcão (ex: 'Garantia de 12 meses direto de fábrica', '2 anos de garantia nacional').
+- 'persuasiveDetails': Argumento técnico convincente para o cliente comprar esta marca.
+- 'warrantyInfo': Termo de garantia recomendado no balcão.
 
-3. ESPECIFICAÇÕES TÉCNICAS COMPLETAS ('technicalSpecs'): Traga no mínimo entre 6 e 10 especificações técnicas detalhadas para conferência imediata no balcão da loja (ex: Quantidade que vai no carro, Diâmetro externo/interno, Espessura/Comprimento, Medida e passo de rosca, Número de dentes ou estrias, Lado/Posição de montagem LE/LD/Dianteiro/Traseiro, Pinos ou vias do conector elétrico, Material de atrito ou fabricação, Sistema de freio ou injeção, Pressão de trabalho, Folga/GAP, Tamanho de chave de encaixe). Nunca deixe menos de 6 especificações técnicas.
-4. Forneça "Avisos de Balcão" com as pegadinhas mais comuns de aplicação para este carro específico (ex: diferença se tiver ar condicionado, mudança de código por ano/mês de fabricação, diferença de motor flex ou gasolina).
-5. Sugira peças complementares (venda casada / itens que se recomenda trocar juntos, ex: correia + tensor + bomba d'água; pastilha + disco + fluido). INCLUA OBRIGATORIAMENTE os códigos de referência das peças complementares ("referenceCodes") das marcas mais vendidas no Brasil (ex: "Fremax BD-5298 • Hipper Freios HF-24A • TRW RCDI09780").
-6. QUANTIDADE QUE VAI NO CARRO ('quantityUsedInVehicle'): Indique de forma clara e direta quantas unidades dessa peça são utilizadas no veículo pesquisado e como é vendida no balcão (ex: '2 unidades (1 lado direito + 1 lado esquerdo - recomenda-se trocar o par)', '1 jogo (contém 4 pastilhas para as 2 rodas dianteiras)', '4 unidades (1 vela por cilindro)', '3 unidades (1 vela por cilindro)', '1 unidade', '2 unidades (1 por roda)', '1 kit').
-7. Redija um resumo curto ("quickSalesPitch") de 1 ou 2 frases para o vendedor falar na hora no telefone com o cliente.
-8. Redija uma mensagem pronta e formatada para WhatsApp ("whatsappMessage") seguindo rigorosamente o seguinte modelo:
-Orçamento de Roncoli - [Modelo do Carro]
-
-Olá! Segue a especificação de [peça] para o seu veículo:
-
-Opção 1
-✅ Peça: [Nome da Peça] ([quantidade que vai no carro])
-✅ Marca Recomendada: [Marca 1ª Linha] (Original de montadora)
-✅ Código: [Código]
-✅ Preço: (deixar vazio para preenchimento manual)
-💰 Valor: R$ [Inserir Preço] total.
-
-Opção 2
-✅ Peça: [Nome da Peça] ([quantidade que vai no carro])
-✅ Marca Recomendada: [Marca Alternativa]
-✅ Código: [Código]
-✅ Preço: (deixar vazio para preenchimento manual)
-💰 Valor: R$ [Inserir Preço] total.
-
-⚠️ Dica do Especialista: [Dica técnica importante sobre aplicação ou troca preventiva]
-
-Qualquer dúvida, estou à disposição!
-
-FORMATO DE RESPOSTA OBRIGATÓRIO:
-Você DEVE retornar a resposta estritamente no formato JSON dentro de um bloco de código markdown \`\`\`json ... \`\`\`.
-A estrutura do JSON DEVE ser:
+FORMATO DE RESPOSTA OBRIGATÓRIO (JSON estrito em bloco \`\`\`json ... \`\`\`):
 {
-  "carSummary": "Nome completo e padronizado do veículo (ex: VW Gol G6 1.0 8V Flex)",
+  "carSummary": "Nome completo e padronizado do veículo",
   "partSummary": "Nome técnico e padronizado da peça",
-  "category": "Categoria da peça (ex: Motor, Freios, Suspensão, Transmissão, Elétrica, Arrefecimento)",
-  "quantityUsedInVehicle": "Quantidade exata que vai no carro (ex: 2 unidades - 1 lado direito e 1 lado esquerdo; ou 1 jogo com 4 pastilhas; ou 4 unidades - 1 por cilindro)",
-  "oemCodes": [
-    {
-      "code": "Código OEM original (ex: 030121008D)",
-      "brandOrOrigin": "Montadora / Marca Original (ex: Volkswagen Original)",
-      "notes": "Observação se houver (ex: Aplica-se a partir de 2014)"
-    }
-  ],
-  "aftermarketCodes": [
-    {
-      "brand": "Nome da Marca da lista principal (ex: LUK, Valeo, Sachs, Nakata, Monroe, Bosch, NGK, SKF, Cofap, Continental, etc.)",
-      "code": "Código exato no catálogo da marca (ex: 620 3020 00)",
-      "lineOrType": "Linha ou subtipo (ex: Linha RepSet com Rolamento)",
-      "popularInBrazil": true,
-      "salesVolume": "Mais vendida | Média saída | Menos vendida",
-      "tier": "1ª Linha | 2ª Linha | 3ª Linha",
-      "verdictBadge": "Melhor em Qualidade | Melhor Custo-Benefício | Melhor em Durabilidade | Opção Econômica",
-      "technicalDetails": "Informação técnica específica da peça desta marca",
-      "persuasiveDetails": "Argumento de venda técnica para convencer o cliente a comprar no balcão",
-      "warrantyInfo": "Prazo e cobertura de garantia da fabricante"
-    }
-  ],
-  "technicalSpecs": [
-    {
-      "label": "Nome da especificação (ex: Diâmetro externo, Número de Dentes, Rosca, Pinos do Conector, Lado)",
-      "value": "Valor ou medida técnica (ex: 138 dentes, 4 pinos, Lado Esquerdo/Motorista)"
-    }
-  ],
-  "applicationWarnings": [
-    "Alerta crítico para o vendedor não vender a peça errada"
-  ],
-  "complementaryParts": [
-    {
-      "name": "Nome da peça adicional recomendada (ex: Disco de freio dianteiro)",
-      "reason": "Por que o cliente deve trocar junto",
-      "referenceCodes": "Códigos de referência das marcas líderes para consulta no estoque"
-    }
-  ],
-  "quickSalesPitch": "Frase pronta e confiante para o vendedor falar no telefone ou balcão",
-  "whatsappMessage": "Texto completo formatado com emojis, quebras de linha e dados para envio no WhatsApp do cliente"
-}
-
-Responda sempre em Português do Brasil com máxima precisão técnica.`;
+  "category": "Categoria da peça",
+  "quantityUsedInVehicle": "Quantidade exata que vai no carro",
+  "oemCodes": [{ "code": "Código OEM", "brandOrOrigin": "Montadora", "notes": "Obs" }],
+  "aftermarketCodes": [{
+    "brand": "Nome da Marca",
+    "code": "Código de catálogo exato",
+    "lineOrType": "Linha ou tipo",
+    "popularInBrazil": true,
+    "salesVolume": "Mais vendida | Média saída | Menos vendida",
+    "tier": "1ª Linha | 2ª Linha | 3ª Linha",
+    "verdictBadge": "Melhor em Qualidade | Melhor Custo-Benefício | Melhor em Durabilidade | Opção Econômica",
+    "technicalDetails": "Detalhes técnicos",
+    "persuasiveDetails": "Argumento de venda",
+    "warrantyInfo": "Garantia"
+  }],
+  "technicalSpecs": [{ "label": "Nome", "value": "Valor" }],
+  "applicationWarnings": ["Aviso crítico de balcão"],
+  "complementaryParts": [{ "name": "Peça complementar", "reason": "Motivo", "referenceCodes": "Códigos líderes" }],
+  "quickSalesPitch": "Frase para o vendedor falar",
+  "whatsappMessage": "Mensagem formatada para WhatsApp"
+}`;
 
     try {
       generateResult = await generateWithFallback(ai, prompt);
@@ -246,8 +197,44 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
   }
 
   if (!generateResult) {
-    const offlineMatch = findOfflinePart(part, model, engine, notes) || generateSmartFallbackPart(part, model, year, engine, notes);
+    const offlineMatch =
+      findOfflinePart(part, model, engine, notes) ||
+      generateSmartFallbackPart(part, model, year, engine, notes);
     const localSuppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
+
+    // Mesclar com códigos extraídos da pesquisa real na web para garantir fidelidade de catálogo
+    const mergedOem = [...offlineMatch.oemCodes];
+    for (const liveOem of liveWeb.extractedOemCodes) {
+      if (!mergedOem.some((o) => o.code === liveOem.code)) {
+        mergedOem.push(liveOem);
+      }
+    }
+
+    const mergedAftermarket = [...offlineMatch.aftermarketCodes];
+    for (const liveAfter of liveWeb.extractedAftermarketCodes) {
+      const idx = mergedAftermarket.findIndex(
+        (a) => a.brand.toLowerCase() === liveAfter.brand.toLowerCase()
+      );
+      if (idx >= 0) {
+        mergedAftermarket[idx] = { ...mergedAftermarket[idx], ...liveAfter };
+      } else {
+        mergedAftermarket.push(liveAfter);
+      }
+    }
+
+    const mergedSpecs = [...offlineMatch.technicalSpecs];
+    for (const s of liveWeb.extractedSpecs) {
+      if (!mergedSpecs.some((sp) => sp.label.toLowerCase() === s.label.toLowerCase())) {
+        mergedSpecs.push(s);
+      }
+    }
+
+    const mergedWarnings = [...offlineMatch.applicationWarnings];
+    for (const w of liveWeb.extractedWarnings) {
+      if (!mergedWarnings.some((mw) => mw.toLowerCase() === w.toLowerCase())) {
+        mergedWarnings.unshift(w);
+      }
+    }
 
     return {
       id: `catalog-${Date.now()}`,
@@ -257,21 +244,17 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
       partSummary: offlineMatch.partSummary,
       category: offlineMatch.category,
       quantityUsedInVehicle: offlineMatch.quantityUsedInVehicle,
-      oemCodes: offlineMatch.oemCodes,
-      aftermarketCodes: offlineMatch.aftermarketCodes,
-      technicalSpecs: offlineMatch.technicalSpecs,
-      applicationWarnings: offlineMatch.applicationWarnings,
+      oemCodes: mergedOem,
+      aftermarketCodes: mergedAftermarket,
+      technicalSpecs: mergedSpecs,
+      applicationWarnings: mergedWarnings,
       complementaryParts: offlineMatch.complementaryParts,
       quickSalesPitch: offlineMatch.quickSalesPitch,
       whatsappMessage: offlineMatch.whatsappMessage,
       suppliersRioClaro: localSuppliers,
-      groundingSources: [
-        { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
-        { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
-        { uri: 'https://www.luk.com.br', title: 'Catálogo Schaeffler LUK' },
-        { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Bosch' },
-      ],
-      searchQueries: [part, model],
+      groundingSources: liveWeb.sources,
+      directLinks: liveWeb.directLinks,
+      searchQueries: liveWeb.queries,
     };
   }
 
@@ -279,8 +262,8 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
   const responseText = response.text || '';
 
   const rawChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-  const groundingSources: { uri: string; title: string }[] = [];
-  const seenUris = new Set<string>();
+  const groundingSources: { uri: string; title: string; snippet?: string }[] = [...liveWeb.sources];
+  const seenUris = new Set<string>(liveWeb.sources.map((s) => s.uri));
 
   for (const chunk of rawChunks) {
     if (chunk.web?.uri && !seenUris.has(chunk.web.uri)) {
@@ -292,7 +275,9 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
     }
   }
 
-  const searchQueries: string[] = response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
+  const geminiSearchQueries: string[] =
+    response.candidates?.[0]?.groundingMetadata?.webSearchQueries || [];
+  const searchQueries = Array.from(new Set([...liveWeb.queries, ...geminiSearchQueries]));
 
   let parsedData: any = null;
   try {
@@ -316,15 +301,30 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
       partSummary: part,
       category: 'Geral',
       quantityUsedInVehicle: '1 unidade',
-      oemCodes: [],
-      aftermarketCodes: [],
-      technicalSpecs: [],
-      applicationWarnings: ['Consulte o texto detalhado da análise técnica abaixo.'],
+      oemCodes: liveWeb.extractedOemCodes,
+      aftermarketCodes: liveWeb.extractedAftermarketCodes,
+      technicalSpecs: liveWeb.extractedSpecs,
+      applicationWarnings: liveWeb.extractedWarnings.length > 0 ? liveWeb.extractedWarnings : ['Consulte o texto detalhado da análise técnica abaixo.'],
       complementaryParts: [],
       quickSalesPitch: `Temos opções originais e paralelas para o ${model} ${year || ''}.`,
       whatsappMessage: `Olá! Segue cotação da peça: *${part}* para o *${model} ${year || ''}*.\nEntre em contato para confirmar a disponibilidade.`,
       rawAiExplanation: responseText,
     };
+  }
+
+  // Cross-reference: if Gemini didn't return OEM or Aftermarket codes, fill from liveWeb extraction
+  if (!parsedData.oemCodes || parsedData.oemCodes.length === 0) {
+    parsedData.oemCodes = liveWeb.extractedOemCodes;
+  }
+  if (!parsedData.aftermarketCodes || parsedData.aftermarketCodes.length === 0) {
+    parsedData.aftermarketCodes = liveWeb.extractedAftermarketCodes;
+  }
+  if (liveWeb.extractedWarnings.length > 0) {
+    for (const w of liveWeb.extractedWarnings) {
+      if (!parsedData.applicationWarnings.includes(w)) {
+        parsedData.applicationWarnings.unshift(w);
+      }
+    }
   }
 
   const suppliersRioClaro = getRioClaroSuppliersForPart(parsedData.partSummary || part, parsedData.category || 'Geral');
@@ -346,6 +346,7 @@ Responda sempre em Português do Brasil com máxima precisão técnica.`;
     whatsappMessage: parsedData.whatsappMessage || '',
     suppliersRioClaro,
     groundingSources,
+    directLinks: liveWeb.directLinks,
     searchQueries,
     rawAiExplanation: parsedData.rawAiExplanation || (parsedData.oemCodes?.length === 0 ? responseText : undefined),
   };

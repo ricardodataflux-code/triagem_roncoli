@@ -256,9 +256,46 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
           <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1">
             <Info className="w-3 h-3 text-blue-600 dark:text-blue-400 shrink-0" />
             <span>
-              Informe submodelos (ex: <strong>frente montana</strong>), sistema de freio (ex: <strong>Teves ou Varga</strong>), diâmetro de disco ou código gravado para conferência exata.
+              Informe submodelos (ex: <strong>frente montana</strong>), climatização (ex: <strong>sem ar condicionado</strong>), sistema de freio ou código gravado.
             </span>
           </p>
+
+          {/* Quick Refinement Chips */}
+          <div className="flex items-center gap-1.5 flex-wrap mt-2">
+            <span className="text-[10px] uppercase font-bold text-zinc-400 dark:text-zinc-500">
+              Atalhos rápidos:
+            </span>
+            {[
+              'Sem Ar Condicionado',
+              'Com Ar Condicionado',
+              'Câmbio Manual',
+              'Frente Montana',
+              'Sistema Teves',
+              'Com ABS',
+            ].map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => {
+                  const current = formData.notes?.trim() || '';
+                  if (!current) {
+                    handleInputChange('notes', chip);
+                  } else if (!current.toLowerCase().includes(chip.toLowerCase())) {
+                    handleInputChange('notes', `${current}, ${chip}`);
+                  }
+                }}
+                className={`text-[11px] px-2 py-0.5 rounded-md border font-medium transition-all ${
+                  (formData.notes || '').toLowerCase().includes(chip.toLowerCase())
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : darkMode
+                    ? 'bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 border-zinc-700'
+                    : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-700 border-zinc-200'
+                }`}
+              >
+                + {chip}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Collapsible: Additional Fields (Câmbio e Placa/Chassi) */}

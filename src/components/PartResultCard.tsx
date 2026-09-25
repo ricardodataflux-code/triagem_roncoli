@@ -16,6 +16,9 @@ import {
   MapPin,
   Phone,
   Building2,
+  Search,
+  BookOpen,
+  Sparkles,
 } from 'lucide-react';
 import { SearchResult } from '../types';
 import { evaluateAftermarketList, EvaluatedAftermarketItem } from '../utils/brandEvaluator';
@@ -115,13 +118,17 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
         <div className="bg-zinc-950 text-white p-5 sm:p-7 border-b border-zinc-800 relative">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="text-[10px] font-mono uppercase tracking-widest font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/80">
                   {result.category || 'Autopeças'}
                 </span>
+                <span className="text-[10px] font-mono uppercase tracking-widest font-medium px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Pesquisa em Todas as Fontes da Web & Google
+                </span>
                 <span className="text-[10px] font-mono uppercase tracking-widest font-medium px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-400 border border-zinc-800 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
-                  Verificado em Catálogos Técnicos
+                  Catálogo Homologado
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
@@ -603,53 +610,110 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({ result, darkMode
             </div>
           )}
 
-          {/* SECTION 6: GOOGLE SEARCH GROUNDING SOURCES ACCORDION */}
-          {result.groundingSources && result.groundingSources.length > 0 && (
-            <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
-              <button
-                type="button"
-                onClick={() => setShowSources(!showSources)}
-                className="text-xs text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white flex items-center gap-1.5 transition-colors font-medium"
-              >
-                <Globe className="w-3.5 h-3.5 text-zinc-400" />
-                <span>
-                  {showSources
-                    ? 'Ocultar fontes consultadas'
-                    : `Ver ${result.groundingSources.length} catálogos e referências consultados na web`}
-                </span>
-              </button>
-
-              {showSources && (
-                <div
-                  className={`mt-2.5 p-3.5 rounded-xl border space-y-2 text-xs ${
-                    darkMode ? 'bg-zinc-900/40 border-zinc-800' : 'bg-zinc-50 border-zinc-200'
-                  }`}
-                >
-                  <p className="font-bold text-zinc-800 dark:text-zinc-300 text-[10px] uppercase tracking-wider">
-                    Fontes verificadas:
+          {/* SECTION 6: PESQUISA EM TODAS AS FONTES DA WEB & CATÁLOGOS DOS FABRICANTES */}
+          <div
+            id="section-web-sources-catalogs"
+            className={`p-5 rounded-2xl border transition-all ${
+              darkMode ? 'bg-zinc-900/60 border-zinc-800' : 'bg-slate-50/80 border-slate-200'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-900 dark:text-white flex items-center gap-2">
+                    <span>Pesquisa em Todas as Fontes da Web & Catálogos Fabricantes</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-800">
+                      Google Search Ativo
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
+                    Consulta profunda realizada na internet em busca de especificações idênticas às dos catálogos de fábrica.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {result.groundingSources.map((src, i) => (
-                      <a
-                        key={i}
-                        href={src.uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`p-2 rounded-lg border flex items-center justify-between gap-2 hover:underline transition-colors ${
-                          darkMode
-                            ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white'
-                            : 'bg-white border-zinc-200 text-zinc-800 hover:text-black font-medium'
-                        }`}
-                      >
-                        <span className="truncate text-xs">{src.title}</span>
-                        <ExternalLink className="w-3 h-3 text-zinc-400 shrink-0" />
-                      </a>
-                    ))}
-                  </div>
                 </div>
+              </div>
+
+              {result.groundingSources && result.groundingSources.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowSources(!showSources)}
+                  className="text-xs px-2.5 py-1 rounded-md border font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shrink-0 self-start sm:self-auto"
+                >
+                  {showSources ? 'Ocultar links consultados' : `Ver ${result.groundingSources.length} fontes consultadas`}
+                </button>
               )}
             </div>
-          )}
+
+            {/* Direct Verification Links to Google and Manufacturer Catalogs */}
+            {result.directLinks && result.directLinks.length > 0 && (
+              <div className="mb-3">
+                <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Search className="w-3 h-3 text-zinc-400" />
+                  Links de Consulta Direta nos Catálogos Oficiais & Google:
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {result.directLinks.map((link, idx) => (
+                    <a
+                      key={idx}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`px-2.5 py-2 rounded-lg border text-[11px] font-semibold flex items-center justify-between gap-1.5 transition-all hover:scale-[1.01] ${
+                        link.type === 'google'
+                          ? darkMode
+                            ? 'bg-blue-950/40 border-blue-800 text-blue-300 hover:bg-blue-900/60'
+                            : 'bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100'
+                          : darkMode
+                          ? 'bg-zinc-900 border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700'
+                          : 'bg-white border-zinc-200 text-zinc-800 hover:text-black hover:border-zinc-300 shadow-2xs'
+                      }`}
+                    >
+                      <span className="truncate">{link.label}</span>
+                      <ExternalLink className="w-3 h-3 text-zinc-400 shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Expanded List of Visited Web Sources and Snippets */}
+            {showSources && result.groundingSources && result.groundingSources.length > 0 && (
+              <div
+                className={`mt-3 p-3.5 rounded-xl border space-y-2 text-xs ${
+                  darkMode ? 'bg-zinc-950/60 border-zinc-800' : 'bg-white border-zinc-200 shadow-2xs'
+                }`}
+              >
+                <p className="font-bold text-zinc-800 dark:text-zinc-300 text-[10px] uppercase tracking-wider">
+                  Páginas e Catálogos Rastreamento na Web:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {result.groundingSources.map((src, i) => (
+                    <a
+                      key={i}
+                      href={src.uri}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`p-2.5 rounded-lg border flex flex-col justify-between gap-1 hover:underline transition-colors ${
+                        darkMode
+                          ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:text-white'
+                          : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:text-black'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="truncate font-semibold text-[11px]">{src.title}</span>
+                        <ExternalLink className="w-3 h-3 text-zinc-400 shrink-0" />
+                      </div>
+                      {src.snippet && (
+                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                          {src.snippet}
+                        </p>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* SECTION 7: ONDE ENCONTRAR (se não tiver em loja) - RIO CLARO - SP (OBRIGATÓRIO: ULTIMA INFORMAÇÃO) */}
           <div

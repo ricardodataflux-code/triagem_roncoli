@@ -8,6 +8,17 @@ export interface CarPreset {
 
 export const POPULAR_PRESETS: CarPreset[] = [
   {
+    title: "Celta 1.0 2013 Sem Ar",
+    subtitle: "Radiador (Visconde 12223 / OEM 93337574)",
+    data: {
+      part: "Radiador",
+      model: "Chevrolet Celta",
+      year: "2013",
+      engine: "1.0 8V VHCE Flex",
+      notes: "Sem ar condicionado, câmbio manual",
+    },
+  },
+  {
     title: "Corsa Frente Montana 1.4 2012",
     subtitle: "Pastilha de freio dianteira (Cobreq N-360)",
     data: {

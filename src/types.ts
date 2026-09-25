@@ -43,6 +43,13 @@ export interface ComplementaryPart {
 export interface GroundingSource {
   uri: string;
   title: string;
+  snippet?: string;
+}
+
+export interface DirectSearchLink {
+  label: string;
+  url: string;
+  type: 'google' | 'catalog' | 'marketplace' | 'oem';
 }
 
 export interface SupplierRioClaro {
@@ -72,6 +79,7 @@ export interface SearchResult {
   whatsappMessage: string;
   groundingSources: GroundingSource[];
   searchQueries: string[];
+  directLinks?: DirectSearchLink[];
   rawAiExplanation?: string;
   suppliersRioClaro?: SupplierRioClaro[];
 }
