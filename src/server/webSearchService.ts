@@ -11,9 +11,16 @@ export interface DirectSearchLink {
   type: 'google' | 'catalog' | 'marketplace' | 'oem';
 }
 
+export interface WebSearchSource {
+  uri: string;
+  title: string;
+  snippet?: string;
+  sourceChannel?: 'mercadolivre' | 'google' | 'catalog';
+}
+
 export interface WebSearchAnalysisResult {
   queries: string[];
-  sources: { uri: string; title: string; snippet?: string }[];
+  sources: WebSearchSource[];
   directLinks: DirectSearchLink[];
   extractedOemCodes: { code: string; brandOrOrigin: string; notes?: string }[];
   extractedAftermarketCodes: {
@@ -36,7 +43,7 @@ async function fetchDuckDuckGoHtml(query: string): Promise<LiveWebSearchItem[]> 
   try {
     const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 2500);
 
     const response = await fetch(url, {
       signal: controller.signal,
@@ -124,17 +131,69 @@ async function fetchDuckDuckGoHtml(query: string): Promise<LiveWebSearchItem[]> 
   }
 }
 
+export function classifySourceChannel(uri: string): 'mercadolivre' | 'google' | 'catalog' {
+  const low = (uri || '').toLowerCase();
+  if (low.includes('mercadolivre.com') || low.includes('mercadolibre.com')) {
+    return 'mercadolivre';
+  }
+  if (
+    low.includes('visconde') ||
+    low.includes('valeo') ||
+    low.includes('nakata') ||
+    low.includes('mahle') ||
+    low.includes('marelli') ||
+    low.includes('bosch') ||
+    low.includes('cobreq') ||
+    low.includes('fras-le') ||
+    low.includes('cofap') ||
+    low.includes('schaeffler') ||
+    low.includes('zf.com') ||
+    low.includes('mte-thomson') ||
+    low.includes('valclei') ||
+    low.includes('tecfil') ||
+    low.includes('catalogo')
+  ) {
+    return 'catalog';
+  }
+  return 'google';
+}
+
+function buildMercadoLivreSlug(parts: string[]): string {
+  return parts
+    .join(' ')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
 export function buildDirectSearchLinks(
   part: string,
   model: string,
   year?: string,
-  notes?: string
+  notes?: string,
+  engine?: string,
+  transmission?: string
 ): DirectSearchLink[] {
-  const cleanVehicle = `${model} ${year || ''} ${notes || ''}`.trim();
+  const cleanVehicle = `${model} ${year || ''} ${engine || ''} ${transmission || ''} ${notes || ''}`
+    .replace(/\s+/g, ' ')
+    .trim();
   const baseQuery = `${part} ${cleanVehicle}`.trim();
   const partLower = part.toLowerCase();
+  const mlSlug = buildMercadoLivreSlug([part, model, year || '', engine || '', notes || '']);
 
   const links: DirectSearchLink[] = [
+    {
+      label: 'MercadoLivre (Busca Direta)',
+      url: `https://lista.mercadolivre.com.br/${mlSlug}`,
+      type: 'marketplace',
+    },
+    {
+      label: 'Google + MercadoLivre',
+      url: `https://www.google.com/search?q=${encodeURIComponent(`site:mercadolivre.com.br ${baseQuery}`)}`,
+      type: 'marketplace',
+    },
     {
       label: 'Google Search Oficial',
       url: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} catalogo fabricante codigo original oem`)}`,
@@ -417,15 +476,40 @@ export function buildDirectSearchLinks(
       label: 'Concessionárias & Peças OEM',
       url: `https://www.google.com/search?q=${encodeURIComponent(`codigo oem original "${part}" ${cleanVehicle}`)}`,
       type: 'oem',
-    },
-    {
-      label: 'MercadoLivre (Lojas Oficiais & Catálogos)',
-      url: `https://lista.mercadolivre.com.br/${encodeURIComponent(`${part} ${cleanVehicle} original`)}`,
-      type: 'marketplace',
     }
   );
 
   return links;
+}
+
+const GENERIC_MAKE_TOKENS = new Set([
+  'chevrolet', 'gm', 'general', 'motors', 'volkswagen', 'vw', 'fiat', 'ford',
+  'toyota', 'honda', 'hyundai', 'renault', 'nissan', 'jeep', 'peugeot', 'citroen',
+  'mitsubishi', 'kia', 'bmw', 'mercedes', 'audi', 'chery', 'suzuki', 'ssangyong',
+]);
+
+function normalizeSearchToken(s: string): string {
+  return (s || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9.]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasStrictWordToken(haystackNorm: string, tokenRaw: string): boolean {
+  const token = normalizeSearchToken(tokenRaw);
+  if (!token) return false;
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:^|\\s)${escaped}(?:$|\\s)`).test(haystackNorm);
+}
+
+export function extractCoreModelTokens(model: string): string[] {
+  const normalized = normalizeSearchToken(model);
+  return normalized
+    .split(' ')
+    .filter((t) => t.length >= 2 && !GENERIC_MAKE_TOKENS.has(t));
 }
 
 export async function executeMultiSourceWebSearch(params: {
@@ -434,23 +518,24 @@ export async function executeMultiSourceWebSearch(params: {
   year?: string;
   engine?: string;
   notes?: string;
+  transmission?: string;
 }): Promise<WebSearchAnalysisResult> {
-  const { part, model, year, engine, notes } = params;
-  const partNorm = part.toLowerCase();
-  const modelNorm = model.toLowerCase();
-  const notesNorm = (notes || '').toLowerCase();
+  const { part, model, year, engine, notes, transmission } = params;
+  const partNorm = normalizeSearchToken(part);
+  const modelNorm = normalizeSearchToken(model);
+  const notesNorm = normalizeSearchToken(notes || '');
+  const fullNotesNorm = normalizeSearchToken(`${notes || ''} ${transmission || ''}`);
+  const coreModelTokens = extractCoreModelTokens(model);
 
-  // Create targeted multi-query search strings
+  // Create targeted multi-query search strings focusing on Google + MercadoLivre + Catalogs
   const searchQueries: string[] = [
-    `${part} ${model} ${year || ''} ${engine || ''} ${notes || ''} catalogo fabricante codigo oem`.trim(),
-    `${part} ${model} ${year || ''} ${notes || ''} visconde valeo magneti marelli mahle`.trim(),
-    `codigo original oem ${part} ${model} ${year || ''} ${notes || ''}`.trim(),
+    `${part} ${model} ${year || ''} ${engine || ''} ${transmission || ''} ${notes || ''} mercadolivre codigo original`.replace(/\s+/g, ' ').trim(),
+    `${part} ${model} ${year || ''} ${engine || ''} ${notes || ''} catalogo fabricante codigo oem`.replace(/\s+/g, ' ').trim(),
   ];
 
   const allItems: LiveWebSearchItem[] = [];
   const seenUris = new Set<string>();
 
-  // Run the first two searches in parallel
   const searchPromises = [
     fetchDuckDuckGoHtml(searchQueries[0]),
     fetchDuckDuckGoHtml(searchQueries[1]),
@@ -475,22 +560,22 @@ export async function executeMultiSourceWebSearch(params: {
     .map((item, idx) => `[${idx + 1}] ${item.title}: ${item.snippet} (URL: ${item.uri})`)
     .join('\n');
 
-  // Specific domain intelligence: Celta / Prisma Radiator
+  // Strict Celta / Prisma Radiator check using word boundaries AND excluding unrelated models
+  const isCeltaOrPrisma =
+    (hasStrictWordToken(modelNorm, 'celta') || hasStrictWordToken(modelNorm, 'prisma')) &&
+    !hasStrictWordToken(modelNorm, 'astra') &&
+    !hasStrictWordToken(modelNorm, 'vectra') &&
+    !hasStrictWordToken(modelNorm, 'zafira');
+
   const isCeltaRadiator =
-    (partNorm.includes('radiador') || partNorm.includes('arrefecimento')) &&
-    (modelNorm.includes('celta') || modelNorm.includes('prisma'));
+    (partNorm.includes('radiador') || partNorm.includes('arrefecimento')) && isCeltaOrPrisma;
 
   const isSemAr =
-    notesNorm.includes('sem ar') ||
-    notesNorm.includes('s/ ar') ||
-    notesNorm.includes('sem ac') ||
-    (!notesNorm.includes('com ar') && !notesNorm.includes('c/ ar') && notesNorm.includes('sem'));
+    /\b(sem ar|s ar|sem ac)\b/.test(fullNotesNorm) ||
+    (!/\b(com ar|c ar|com ac|ar condicionado)\b/.test(fullNotesNorm) && hasStrictWordToken(fullNotesNorm, 'sem'));
 
   const isComAr =
-    notesNorm.includes('com ar') ||
-    notesNorm.includes('c/ ar') ||
-    notesNorm.includes('com ac') ||
-    notesNorm.includes('ar condicionado');
+    /\b(com ar|c ar|com ac|ar condicionado)\b/.test(fullNotesNorm) && !isSemAr;
 
   const extractedOemCodes: { code: string; brandOrOrigin: string; notes?: string }[] = [];
   const extractedAftermarketCodes: any[] = [];
@@ -504,11 +589,6 @@ export async function executeMultiSourceWebSearch(params: {
         code: '93337574',
         brandOrOrigin: 'Chevrolet / GM Original',
         notes: 'Código oficial GM para Celta/Prisma 1.0 e 1.4 SEM ar condicionado (2006 a 2016)',
-      });
-      extractedOemCodes.push({
-        code: '93277988',
-        brandOrOrigin: 'GM Original (Geração Antiga)',
-        notes: 'Aplicável a Celta 2000 a 2006 Sem Ar',
       });
 
       extractedAftermarketCodes.push(
@@ -555,7 +635,7 @@ export async function executeMultiSourceWebSearch(params: {
           warrantyInfo: '12 meses de garantia de fábrica',
         },
         {
-          brand: 'Mahle / Behr',
+          brand: 'Mahle',
           code: 'CR 2135',
           lineOrType: 'Linha Premium Behr',
           popularInBrazil: true,
@@ -655,11 +735,19 @@ export async function executeMultiSourceWebSearch(params: {
     }
   }
 
-  // Parse any extra codes directly mentioned in web search snippets
+  // Parse extra codes ONLY from snippets that actually reference the requested vehicle model
   for (const item of allItems) {
     const text = `${item.title} ${item.snippet}`;
+    const textNorm = normalizeSearchToken(text);
+    const snippetMatchesModel =
+      coreModelTokens.length === 0 ||
+      coreModelTokens.some((tok) => hasStrictWordToken(textNorm, tok));
 
-    // Extract GM 8-digit codes like 93337574, 93385834, etc.
+    if (!snippetMatchesModel) {
+      continue;
+    }
+
+    // Extract GM 8-digit codes only when user queried a GM/Chevrolet car or generic match
     const gmOemMatches = text.match(/\b(93\d{6}|94\d{6}|90\d{6})\b/g);
     if (gmOemMatches) {
       for (const code of gmOemMatches) {
@@ -673,7 +761,7 @@ export async function executeMultiSourceWebSearch(params: {
       }
     }
 
-    // Extract Visconde codes (e.g. Visconde 12223, 12579, 12224)
+    // Extract Visconde codes (e.g. Visconde 12223, 12575, 12224)
     const viscondeMatch = text.match(/visconde[^\d]*(\d{4,5})/i);
     if (viscondeMatch && viscondeMatch[1]) {
       const code = viscondeMatch[1];
@@ -691,7 +779,7 @@ export async function executeMultiSourceWebSearch(params: {
       }
     }
 
-    // Extract Valeo codes (e.g. 733468R, 732770R, 735124R)
+    // Extract Valeo codes (e.g. 733468R, 732808R)
     const valeoMatch = text.match(/valeo[^\d]*(\d{6}[A-Z]?)/i);
     if (valeoMatch && valeoMatch[1]) {
       const code = valeoMatch[1];
@@ -710,23 +798,45 @@ export async function executeMultiSourceWebSearch(params: {
     }
   }
 
-  const directLinks = buildDirectSearchLinks(part, model, year, notes);
+  const directLinks = buildDirectSearchLinks(part, model, year, notes, engine, transmission);
 
-  const sourcesList = allItems.map((item) => ({
+  const sourcesList: WebSearchSource[] = allItems.map((item) => ({
     uri: item.uri,
     title: item.title,
     snippet: item.snippet,
+    sourceChannel: classifySourceChannel(item.uri),
   }));
 
-  // If no items were fetched from network, provide primary verified sources
+  // When network HTML scrape returns nothing, seed with honest dynamic MercadoLivre + Google queries for the exact vehicle
   if (sourcesList.length === 0) {
-    sourcesList.push(
-      { uri: `https://www.google.com/search?q=${encodeURIComponent(`${part} ${model} ${year || ''} ${notes || ''}`)}`, title: 'Google Search Oficial', snippet: 'Pesquisa oficial no Google para especificações de catálogo e códigos OEM.' },
-      { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Oficial Nakata', snippet: 'Consulta oficial no catálogo de autopeças Nakata Brasil.' },
-      { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Oficial Bosch', snippet: 'Catálogo técnico oficial Bosch Aftermarket.' },
-      { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Oficial Cofap', snippet: 'Catálogo oficial de amortecedores e suspensão Cofap.' },
-      { uri: 'https://catalogo.fras-le.com', title: 'Catálogo Oficial Fras-le', snippet: 'Catálogo técnico de freios Fras-le.' }
-    );
+    const mlDirect = directLinks.find((l) => l.label === 'MercadoLivre (Busca Direta)');
+    const mlGoogle = directLinks.find((l) => l.label === 'Google + MercadoLivre');
+    const googleMain = directLinks.find((l) => l.type === 'google');
+
+    if (mlDirect) {
+      sourcesList.push({
+        uri: mlDirect.url,
+        title: `MercadoLivre: ${part} ${model} ${year || ''}`.trim(),
+        snippet: 'Listagem direta de peças e códigos compatíveis no MercadoLivre.',
+        sourceChannel: 'mercadolivre',
+      });
+    }
+    if (mlGoogle) {
+      sourcesList.push({
+        uri: mlGoogle.url,
+        title: `Google (MercadoLivre): ${part} ${model} ${year || ''}`.trim(),
+        snippet: 'Índice Google filtrado no banco de anúncios e catálogos do MercadoLivre.',
+        sourceChannel: 'mercadolivre',
+      });
+    }
+    if (googleMain) {
+      sourcesList.push({
+        uri: googleMain.url,
+        title: `Google Search: ${part} ${model} ${year || ''}`.trim(),
+        snippet: 'Pesquisa Google para catálogos oficiais e códigos OEM da montadora.',
+        sourceChannel: 'google',
+      });
+    }
   }
 
   return {

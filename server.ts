@@ -31,8 +31,10 @@ app.post(['/api/search-part', '/search-part'], async (req, res) => {
     res.json(result);
   } catch (error: any) {
     console.error('Error in /api/search-part:', error);
-    res.status(500).json({
+    const status = typeof error?.statusCode === 'number' ? error.statusCode : 500;
+    res.status(status).json({
       error: error?.message || 'Erro ao processar consulta de autopeças.',
+      directLinks: error?.directLinks || undefined,
     });
   }
 });
@@ -45,7 +47,8 @@ app.post(['/api/followup', '/followup'], async (req, res) => {
     res.json(result);
   } catch (error: any) {
     console.error('Error in /api/followup:', error);
-    res.status(500).json({
+    const status = typeof error?.statusCode === 'number' ? error.statusCode : 500;
+    res.status(status).json({
       error: error?.message || 'Erro ao processar dúvida técnica.',
     });
   }

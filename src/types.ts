@@ -45,6 +45,7 @@ export interface GroundingSource {
   uri: string;
   title: string;
   snippet?: string;
+  sourceChannel?: 'mercadolivre' | 'google' | 'catalog';
 }
 
 export interface DirectSearchLink {
@@ -70,6 +71,7 @@ export interface SearchResult {
   partSummary: string;
   category?: string;
   quantityUsedInVehicle?: string;
+  verificationStatus?: 'online_google_ml' | 'verified_catalog';
   oemCodes: OemCode[];
   aftermarketCodes: CrossReference[];
   technicalSpecs: TechnicalSpec[];

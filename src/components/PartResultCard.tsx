@@ -17,8 +17,6 @@ import {
   Phone,
   Building2,
   Search,
-  BookOpen,
-  Sparkles,
   HelpCircle,
 } from 'lucide-react';
 import { SearchResult, SearchRequest } from '../types';
@@ -131,28 +129,22 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
         <div className="bg-zinc-950 text-white p-5 sm:p-7 border-b border-zinc-800 relative">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="text-[10px] font-mono uppercase tracking-widest font-semibold px-2.5 py-0.5 rounded-md bg-zinc-800 text-zinc-300 border border-zinc-700/80">
-                  {result.category || 'Autopeças'}
+              <p className="text-[11px] font-mono uppercase tracking-widest text-zinc-400 mb-2">
+                {result.category || 'Autopeças'} ·{' '}
+                <span className={result.verificationStatus === 'verified_catalog' ? 'text-blue-300' : 'text-emerald-300'}>
+                  {result.verificationStatus === 'verified_catalog'
+                    ? 'Base Verificada de Catálogo'
+                    : 'Google Search + MercadoLivre Ativo'}
                 </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest font-medium px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-300 border border-emerald-800 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Pesquisa em Todas as Fontes da Web & Google
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-widest font-medium px-2 py-0.5 rounded-md bg-zinc-900 text-zinc-400 border border-zinc-800 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
-                  Catálogo Homologado
-                </span>
-              </div>
+              </p>
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
                 {result.partSummary}
               </h1>
               <p className="text-zinc-400 text-xs sm:text-sm mt-1.5 font-medium flex items-center gap-2 flex-wrap">
                 <span className="text-zinc-200 font-bold">{result.carSummary}</span>
                 {result.query.notes && (
-                  <span className="text-[11px] px-2.5 py-0.5 rounded-md bg-blue-950/80 border border-blue-800 text-blue-300 font-semibold flex items-center gap-1">
-                    <span>🔍 Refinamento:</span>
-                    <span>{result.query.notes}</span>
+                  <span className="text-xs text-blue-300 font-medium">
+                    · Refinamento: {result.query.notes}
                   </span>
                 )}
               </p>
@@ -251,7 +243,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                       <span className="text-[10px] font-mono uppercase font-bold tracking-wider text-zinc-500 dark:text-zinc-400 block mb-1">
                         {oem.brandOrOrigin}
                       </span>
-                      <div className="font-mono text-base font-bold text-zinc-950 dark:text-white tracking-wider select-all">
+                      <div className="font-mono tabular-nums text-base font-bold text-zinc-950 dark:text-white tracking-wider select-all">
                         {oem.code}
                       </div>
                       {oem.notes && (
@@ -304,7 +296,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                   Marcas líderes recomendadas com especificações persuasivas e visualização de foto/desenho técnico
                 </p>
               </div>
-              <span className="text-[11px] font-mono text-zinc-500 dark:text-zinc-400 self-start sm:self-auto">
+              <span className="tabular-nums text-[11px] font-mono text-zinc-500 dark:text-zinc-400 self-start sm:self-auto">
                 {evaluatedAftermarketCodes.length} opções disponíveis
               </span>
             </div>
@@ -378,7 +370,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                       </div>
 
                       {/* Part Code */}
-                      <div className="font-mono text-base sm:text-lg font-bold text-zinc-950 dark:text-white tracking-wider truncate select-all mb-1">
+                      <div className="font-mono tabular-nums text-base sm:text-lg font-bold text-zinc-950 dark:text-white tracking-wider truncate select-all mb-1">
                         {item.code}
                       </div>
 
@@ -389,27 +381,11 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                         </p>
                       )}
 
-                      {/* Badges Row: Sales Volume & Buying Verdict (3-color palette discipline) */}
-                      <div className="flex items-center gap-1.5 flex-wrap mb-3">
-                        <span className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 px-2 py-0.5 rounded-md bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 flex items-center gap-1.5">
-                          <span
-                            className={`w-1.5 h-1.5 rounded-full ${
-                              item.salesVolume === 'Mais vendida'
-                                ? 'bg-zinc-950 dark:bg-zinc-100'
-                                : item.salesVolume === 'Média saída'
-                                ? 'bg-zinc-500'
-                                : 'bg-zinc-400'
-                            }`}
-                          />
-                          {item.salesVolume}
-                        </span>
-
-                        {item.verdictBadge && (
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 tracking-tight">
-                            {item.verdictBadge}
-                          </span>
-                        )}
-                      </div>
+                      {/* Metadata: Sales Volume & Verdict */}
+                      <p className="text-[11px] font-medium text-zinc-600 dark:text-zinc-400 mb-3">
+                        <span className="font-semibold text-zinc-800 dark:text-zinc-200">{item.salesVolume}</span>
+                        {item.verdictBadge ? ` · ${item.verdictBadge}` : ''}
+                      </p>
 
                       {/* PERSUASIVE SELLING ARGUMENT TO CONVINCE THE CUSTOMER */}
                       {item.persuasiveDetails && (
@@ -635,7 +611,7 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
             </div>
           )}
 
-          {/* SECTION 6: PESQUISA EM TODAS AS FONTES DA WEB & CATÁLOGOS DOS FABRICANTES */}
+          {/* SECTION 6: GOOGLE, MERCADOLIVRE & CATÁLOGOS DOS FABRICANTES */}
           <div
             id="section-web-sources-catalogs"
             className={`p-5 rounded-2xl border transition-all ${
@@ -643,17 +619,16 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
             }`}
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <div className="flex items-center gap-2.5">
+                <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <div>
-                  <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-900 dark:text-white flex items-center gap-2">
-                    <span>Pesquisa em Todas as Fontes da Web & Catálogos Fabricantes</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-semibold border border-emerald-300 dark:border-emerald-800">
-                      Google Search Ativo
-                    </span>
+                  <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-900 dark:text-white">
+                    Google Search, MercadoLivre & Catálogos Fabricantes
                   </h3>
                   <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-medium">
-                    Consulta profunda realizada na internet em busca de especificações idênticas às dos catálogos de fábrica.
+                    {result.verificationStatus === 'verified_catalog'
+                      ? 'Referência validada pela base de catálogo técnico com atalhos diretos para conferência no MercadoLivre e Google.'
+                      : 'Consulta ativa via Google Search e MercadoLivre para confirmar aplicação e código OEM do fabricante.'}
                   </p>
                 </div>
               </div>
@@ -662,19 +637,19 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowSources(!showSources)}
-                  className="text-xs px-2.5 py-1 rounded-md border font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shrink-0 self-start sm:self-auto"
+                  className="whitespace-nowrap shrink-0 text-xs px-3 py-1.5 rounded-lg border font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors self-start sm:self-auto"
                 >
                   {showSources ? 'Ocultar links consultados' : `Ver ${result.groundingSources.length} fontes consultadas`}
                 </button>
               )}
             </div>
 
-            {/* Direct Verification Links to Google and Manufacturer Catalogs */}
+            {/* Direct Verification Links to MercadoLivre, Google and Manufacturer Catalogs */}
             {result.directLinks && result.directLinks.length > 0 && (
               <div className="mb-3">
                 <p className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                   <Search className="w-3 h-3 text-zinc-400" />
-                  Links de Consulta Direta nos Catálogos Oficiais & Google:
+                  Links Diretos: MercadoLivre, Google & Catálogos Oficiais
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {result.directLinks.map((link, idx) => (
@@ -683,8 +658,12 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`px-2.5 py-2 rounded-lg border text-[11px] font-semibold flex items-center justify-between gap-1.5 transition-all hover:scale-[1.01] ${
-                        link.type === 'google'
+                      className={`px-2.5 py-2 rounded-lg border text-[11px] font-semibold flex items-center justify-between gap-1.5 transition-colors ${
+                        link.type === 'marketplace'
+                          ? darkMode
+                            ? 'bg-amber-950/40 border-amber-800 text-amber-200 hover:bg-amber-900/50'
+                            : 'bg-amber-50 border-amber-200 text-amber-950 hover:bg-amber-100'
+                          : link.type === 'google'
                           ? darkMode
                             ? 'bg-blue-950/40 border-blue-800 text-blue-300 hover:bg-blue-900/60'
                             : 'bg-blue-50 border-blue-200 text-blue-900 hover:bg-blue-100'
@@ -709,32 +688,46 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
                 }`}
               >
                 <p className="font-bold text-zinc-800 dark:text-zinc-300 text-[10px] uppercase tracking-wider">
-                  Páginas e Catálogos Rastreamento na Web:
+                  Fontes Rastreadas (MercadoLivre · Catálogos · Google):
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {result.groundingSources.map((src, i) => (
-                    <a
-                      key={i}
-                      href={src.uri}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`p-2.5 rounded-lg border flex flex-col justify-between gap-1 hover:underline transition-colors ${
-                        darkMode
-                          ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:text-white'
-                          : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:text-black'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="truncate font-semibold text-[11px]">{src.title}</span>
-                        <ExternalLink className="w-3 h-3 text-zinc-400 shrink-0" />
-                      </div>
-                      {src.snippet && (
-                        <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                          {src.snippet}
-                        </p>
-                      )}
-                    </a>
-                  ))}
+                  {result.groundingSources.map((src, i) => {
+                    const channelLabel =
+                      src.sourceChannel === 'mercadolivre' ||
+                      src.uri.toLowerCase().includes('mercadolivre')
+                        ? 'MercadoLivre'
+                        : src.sourceChannel === 'catalog'
+                        ? 'Catálogo'
+                        : 'Google';
+                    return (
+                      <a
+                        key={i}
+                        href={src.uri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`p-2.5 rounded-lg border flex flex-col justify-between gap-1 hover:underline transition-colors ${
+                          darkMode
+                            ? 'bg-zinc-900/80 border-zinc-800 text-zinc-300 hover:text-white'
+                            : 'bg-zinc-50 border-zinc-200 text-zinc-800 hover:text-black'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate font-semibold text-[11px]">
+                            <span className="font-mono text-[10px] uppercase text-zinc-500 dark:text-zinc-400 mr-1.5">
+                              [{channelLabel}]
+                            </span>
+                            {src.title}
+                          </span>
+                          <ExternalLink className="w-3 h-3 text-zinc-400 shrink-0" />
+                        </div>
+                        {src.snippet && (
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
+                            {src.snippet}
+                          </p>
+                        )}
+                      </a>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -815,12 +808,11 @@ export const PartResultCard: React.FC<PartResultCardProps> = ({
             </div>
 
             <div className="mt-3.5 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center justify-between flex-wrap gap-2">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+              <span>
                 Alternativas locais em Rio Claro-SP para atendimento imediato de oficina sem custo de frete interestadual.
               </span>
               <span className="font-mono text-[10px] text-zinc-500">
-                Polo de Distribuição • Rio Claro - SP
+                Polo de Distribuição · Rio Claro - SP
               </span>
             </div>
           </div>

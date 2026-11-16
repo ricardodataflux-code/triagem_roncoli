@@ -5,7 +5,6 @@ import {
   Wrench,
   Calendar,
   Cpu,
-  AlertCircle,
   ChevronDown,
   ChevronUp,
   Zap,
@@ -13,7 +12,6 @@ import {
   Info,
   HelpCircle,
   ShieldCheck,
-  CheckCircle2,
 } from 'lucide-react';
 import { SearchRequest } from '../types';
 import { POPULAR_PRESETS, POPULAR_PARTS_SUGGESTIONS, CarPreset } from '../data/presets';
@@ -49,7 +47,12 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isPrecisionModalOpen, setIsPrecisionModalOpen] = useState(false);
   const [precisionQuestions, setPrecisionQuestions] = useState<PrecisionQuestion[]>([]);
-  const [alwaysVerifyQuestions, setAlwaysVerifyQuestions] = useState(true);
+  const [verifiedSignature, setVerifiedSignature] = useState<string | null>(null);
+
+  const buildSignature = (d: SearchRequest) =>
+    [d.part, d.model, d.year, d.engine, d.transmission, d.notes]
+      .map((x) => (x || '').trim().toLowerCase())
+      .join('|');
 
   const handleInputChange = (field: keyof SearchRequest, value: string) => {
     setFormData((prev) => ({
@@ -72,28 +75,53 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
   };
 
   const checkIfQuestionsNeeded = (data: SearchRequest, questions: PrecisionQuestion[]): boolean => {
-    if (!questions || questions.length === 0) return false;
     const partLower = (data.part || '').toLowerCase();
     const notesLower = (data.notes || '').toLowerCase();
+    const transLower = (data.transmission || '').toLowerCase();
+    const modelLower = (data.model || '').toLowerCase();
 
-    // 1. Radiador: Deve ter "sem ar" ou "com ar"
-    if (partLower.includes('radiador')) {
+    // 0. Ano e motorização ausentes devem ser confirmados antes de concluir
+    if (!(data.year || '').trim() || !(data.engine || '').trim()) {
+      return true;
+    }
+
+    if (!questions || questions.length === 0) return false;
+
+    // 1. Radiador: Deve ter "sem ar" ou "com ar" E câmbio manual/automático
+    if (partLower.includes('radiador') || partLower.includes('colmeia') || partLower.includes('resfriamento')) {
       const hasAc =
         notesLower.includes('sem ar') ||
         notesLower.includes('s/ ar') ||
         notesLower.includes('com ar') ||
-        notesLower.includes('c/ ar');
-      if (!hasAc) return true;
+        notesLower.includes('c/ ar') ||
+        notesLower.includes('ar condicionado');
+      const hasTrans =
+        transLower.includes('man') ||
+        transLower.includes('aut') ||
+        notesLower.includes('manual') ||
+        notesLower.includes('autom');
+      if (!hasAc || !hasTrans) return true;
     }
 
-    // 2. Freios Chevrolet: Deve diferenciar Frente Montana vs Celta Classic vs Onix
-    if (partLower.includes('pastilha') || partLower.includes('freio')) {
-      const modelLower = (data.model || '').toLowerCase();
+    // 2. Freios: Deve ter eixo (dianteiro/traseiro), tipo de disco e geração GM quando aplicável
+    if (partLower.includes('pastilha') || partLower.includes('freio') || partLower.includes('disco')) {
+      const hasAxle =
+        partLower.includes('dianteir') ||
+        partLower.includes('traseir') ||
+        notesLower.includes('dianteir') ||
+        notesLower.includes('traseir');
+      const hasDiscType =
+        notesLower.includes('ventilad') ||
+        notesLower.includes('solido') ||
+        notesLower.includes('sólido');
+      if (!hasAxle || !hasDiscType) return true;
+
       if (
         modelLower.includes('corsa') ||
         modelLower.includes('montana') ||
         modelLower.includes('celta') ||
-        modelLower.includes('prisma')
+        modelLower.includes('prisma') ||
+        modelLower.includes('onix')
       ) {
         const hasGen =
           notesLower.includes('frente montana') ||
@@ -116,13 +144,50 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
       if (!hasClutchType) return true;
     }
 
-    // 4. Bomba d'água GM: 19 dentes vs 21/23 dentes
+    // 4. Bomba d'água GM: 19 dentes vs 21/23/25 dentes
     if (partLower.includes('bomba') && (partLower.includes('agua') || partLower.includes('água'))) {
-      const hasTeeth =
-        notesLower.includes('dente') ||
-        notesLower.includes('ub0155') ||
-        notesLower.includes('19 d');
-      if (!hasTeeth) return true;
+      if (
+        modelLower.includes('corsa') ||
+        modelLower.includes('celta') ||
+        modelLower.includes('prisma') ||
+        modelLower.includes('onix') ||
+        modelLower.includes('astra')
+      ) {
+        const hasTeeth =
+          notesLower.includes('dente') ||
+          notesLower.includes('ub0155') ||
+          notesLower.includes('19 d');
+        if (!hasTeeth) return true;
+      }
+    }
+
+    // 5. Amortecedores / Suspensão: Posição (Dianteiro vs Traseiro)
+    if (partLower.includes('amortecedor') || partLower.includes('suspens')) {
+      const hasPos =
+        partLower.includes('dianteir') ||
+        partLower.includes('traseir') ||
+        notesLower.includes('dianteir') ||
+        notesLower.includes('traseir');
+      if (!hasPos) return true;
+    }
+
+    // 6. Válvula termostática: Carcaça completa vs Refil
+    if (partLower.includes('termostat')) {
+      const hasHousing =
+        notesLower.includes('carcaca') ||
+        notesLower.includes('carcaça') ||
+        notesLower.includes('refil');
+      if (!hasHousing) return true;
+    }
+
+    // 7. Correias: Kit com tensor vs Avulsa
+    if (partLower.includes('correia')) {
+      const hasScope =
+        partLower.includes('kit') ||
+        notesLower.includes('kit') ||
+        notesLower.includes('tensor') ||
+        notesLower.includes('avulsa');
+      if (!hasScope) return true;
     }
 
     return false;
@@ -134,9 +199,10 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
 
     const questions = detectPrecisionQuestions(formData);
     const mustAsk = checkIfQuestionsNeeded(formData, questions);
+    const sig = buildSignature(formData);
 
-    // Se houver perguntas críticas não respondidas ou se a pré-verificação estiver ativa
-    if (mustAsk || (alwaysVerifyQuestions && questions.length > 0 && !formData.notes?.includes('('))) {
+    // Exige pré-verificação sempre que faltarem especificações críticas ou antes da primeira confirmação deste conjunto
+    if (mustAsk || (questions.length > 0 && verifiedSignature !== sig)) {
       setPrecisionQuestions(questions);
       setIsPrecisionModalOpen(true);
       return;
@@ -152,12 +218,14 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
   };
 
   const handleConfirmPrecisionQuestions = (finalRequest: SearchRequest) => {
+    setVerifiedSignature(buildSignature(finalRequest));
     setFormData(finalRequest);
     setIsPrecisionModalOpen(false);
     onSearch(finalRequest);
   };
 
   const handleClear = () => {
+    setVerifiedSignature(null);
     setFormData({
       part: '',
       model: '',
@@ -337,9 +405,6 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
               <Sliders className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               Outras Informações / Detalhes para Refinamento
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 font-semibold">
-              Refinamento de Precisão
-            </span>
           </label>
           <input
             id="input-other-notes"
@@ -461,24 +526,21 @@ export const PartSearchForm: React.FC<PartSearchFormProps> = ({
             <div className="flex items-center gap-2.5">
               <ShieldCheck className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
               <div>
-                <p className="font-bold text-xs flex items-center gap-1.5">
-                  <span>Pré-Verificação Técnica de Balcão (Anti-Inconsistência)</span>
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-semibold">
-                    100% Preciso
-                  </span>
+                <p className="font-bold text-xs">
+                  Pré-Verificação Técnica de Balcão
                 </p>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Faz as perguntas técnicas obrigatórias de montadora (ar condicionado, câmbio, geração da pinça) antes de concluir a cotação.
+                  Confirma ano, motor, ar condicionado, câmbio, eixo e variações de catálogo antes de concluir a pesquisa.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
               <button
                 type="button"
                 onClick={handleOpenPrecisionQuestionsManually}
                 disabled={!formData.part.trim() || !formData.model.trim()}
-                className={`px-3 py-1.5 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all ${
+                className={`whitespace-nowrap shrink-0 px-3 py-1.5 rounded-lg border font-bold text-xs flex items-center gap-1.5 transition-all ${
                   !formData.part.trim() || !formData.model.trim()
                     ? 'opacity-50 cursor-not-allowed border-transparent bg-zinc-200 dark:bg-zinc-800 text-zinc-400'
                     : darkMode

@@ -24,8 +24,10 @@ export default async function handler(req: any, res: any) {
     return sendJsonResponse(res, 200, result);
   } catch (err: any) {
     console.error('Error in /api/search-part:', err);
-    return sendJsonResponse(res, 500, {
+    const status = typeof err?.statusCode === 'number' ? err.statusCode : 500;
+    return sendJsonResponse(res, status, {
       error: err?.message || 'Erro ao processar consulta de peças.',
+      directLinks: err?.directLinks || undefined,
     });
   }
 }

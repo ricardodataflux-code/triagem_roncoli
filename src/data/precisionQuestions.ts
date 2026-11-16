@@ -48,68 +48,63 @@ export function detectPrecisionQuestions(request: SearchRequest): PrecisionQuest
     questions.push({
       id: 'radiator_ac',
       title: 'O veículo possui Ar Condicionado de fábrica ou instalado?',
-      subtitle: 'A presença de ar condicionado altera drasticamente a espessura da colmeia e os suportes do condensador.',
+      subtitle: 'A presença de ar condicionado altera a espessura da colmeia, os bocais e os suportes do condensador.',
       iconType: 'ac',
       impactExplanation:
-        'Modelos SEM ar utilizam colmeia mais fina (ex: 23 mm no Celta - Visconde 12223 / OEM 93337574). Modelos COM ar utilizam colmeia reforçada de 30 mm (Visconde 12224 / OEM 93337575). Inverter causa superaquecimento ou incompatibilidade física de montagem.',
+        'Modelos SEM ar e COM ar utilizam especificações distintas nos catálogos (Visconde, Valeo, Magneti Marelli, Mahle). Inverter causa superaquecimento ou incompatibilidade física de montagem.',
       required: true,
       defaultSelectedId:
         notes.includes('sem ar') || notes.includes('s/ ar')
           ? 'sem_ar'
-          : notes.includes('com ar') || notes.includes('c/ ar')
+          : notes.includes('com ar') || notes.includes('c/ ar') || notes.includes('ar condicionado')
           ? 'com_ar'
           : undefined,
       options: [
         {
           id: 'sem_ar',
           label: 'SEM Ar Condicionado',
-          description: 'Colmeia padrão mais fina (23 mm). Sem suporte para condensador.',
-          badge: 'Aplicação Standard',
-          appliesToNotes: 'SEM Ar Condicionado (colmeia 23mm)',
+          description: 'Sistema sem condensador frontal; colmeia e fixação padrão.',
+          badge: 'Sem Ar',
+          appliesToNotes: 'SEM Ar Condicionado',
         },
         {
           id: 'com_ar',
           label: 'COM Ar Condicionado',
-          description: 'Colmeia reforçada mais espessa (30 mm) para maior dissipação de calor.',
-          badge: 'Carga Térmica Alta',
-          appliesToNotes: 'COM Ar Condicionado (colmeia reforçada 30mm)',
+          description: 'Colmeia preparada para maior carga térmica e fixação do condensador/ventoinha.',
+          badge: 'Com Ar',
+          appliesToNotes: 'COM Ar Condicionado',
         },
       ],
     });
 
     // Pergunta 2: Câmbio Manual ou Automático
-    const hasTransInNotes =
-      trans.includes('aut') ||
-      trans.includes('man') ||
-      notes.includes('manual') ||
-      notes.includes('automát') ||
-      notes.includes('automatico');
-
     questions.push({
       id: 'radiator_trans',
       title: 'Qual é o tipo de Câmbio / Transmissão do veículo?',
       subtitle: 'Veículos automáticos possuem serpentina metálica embutida para refrigerar o óleo da transmissão.',
       iconType: 'transmission',
       impactExplanation:
-        'Radiadores para câmbio automático possuem conexões roscadas na caixa lateral para o óleo ATF. Se o carro for manual e colocar o de automático, fica com conexões soltas.',
+        'Radiadores para câmbio automático possuem conexões roscadas na caixa lateral para o óleo ATF. Se o carro for manual e colocar o de automático (ou vice-versa), não encaixa corretamente.',
       required: true,
       defaultSelectedId:
         trans.includes('aut') || notes.includes('autom')
           ? 'automatica'
-          : 'manual',
+          : trans.includes('man') || notes.includes('manual')
+          ? 'manual'
+          : undefined,
       options: [
         {
           id: 'manual',
           label: 'Câmbio Manual (Mecânico)',
           description: 'Caixas laterais lisas, sem trocador de calor de óleo de câmbio.',
-          badge: 'Mais comum no Brasil',
+          badge: 'Manual',
           appliesToNotes: 'Câmbio Manual',
         },
         {
           id: 'automatica',
           label: 'Câmbio Automático / Automatizado',
-          description: 'Possui conexões roscadas integradas para as mangueiras de óleo da transmissão.',
-          badge: 'Com trocador ATF',
+          description: 'Possui conexões roscadas integradas para as mangueiras de óleo ATF da transmissão.',
+          badge: 'Automático (Trocador ATF)',
           appliesToNotes: 'Câmbio Automático com Trocador de Óleo',
         },
       ],
@@ -197,15 +192,46 @@ export function detectPrecisionQuestions(request: SearchRequest): PrecisionQuest
       ],
     });
 
+    // Pergunta Eixo Dianteiro vs Traseiro (Freios)
+    questions.push({
+      id: 'brake_axle',
+      title: 'A peça é para o eixo Dianteiro ou Traseiro?',
+      subtitle: 'Pastilhas, discos, sapatas e lonas variam completamente conforme o eixo de aplicação.',
+      iconType: 'position',
+      impactExplanation:
+        'Evita cruzar código dianteiro com traseiro (ou pastilha traseira com sistema de sapata/tambor).',
+      required: true,
+      defaultSelectedId:
+        part.includes('traseir') || notes.includes('traseir')
+          ? 'traseiro'
+          : 'dianteiro',
+      options: [
+        {
+          id: 'dianteiro',
+          label: 'Eixo Dianteiro',
+          description: 'Rodas dianteiras.',
+          badge: 'Dianteiro',
+          appliesToNotes: 'Eixo Dianteiro',
+        },
+        {
+          id: 'traseiro',
+          label: 'Eixo Traseiro',
+          description: 'Rodas traseiras (verificar se usa disco ou tambor).',
+          badge: 'Traseiro',
+          appliesToNotes: 'Eixo Traseiro',
+        },
+      ],
+    });
+
     // Pergunta Freio ABS
     questions.push({
       id: 'brake_abs',
       title: 'O veículo possui Sistema de Freio ABS?',
       subtitle: 'Sistemas com ABS podem possuir sensores integrados, pastilhas com chapa anti-ruído reforçada ou cubos magnéticos.',
       iconType: 'brake',
-      impactExplanation: 'Importante principalmente para cubos de roda, rolamentos e sapatas traseiras.',
+      impactExplanation: 'Importante principalmente para cubos de roda, rolamentos, discos e sapatas traseiras.',
       required: false,
-      defaultSelectedId: 'com_abs',
+      defaultSelectedId: notes.includes('sem abs') ? 'sem_abs' : 'com_abs',
       options: [
         {
           id: 'com_abs',
@@ -227,30 +253,30 @@ export function detectPrecisionQuestions(request: SearchRequest): PrecisionQuest
   // 3. BOMBA D'ÁGUA & ARREFECIMENTO
   // ==========================================
   else if (part.includes('bomba') && (part.includes('agua') || part.includes('água') || part.includes('arrefecimento'))) {
-    if (model.includes('corsa') || model.includes('celta') || model.includes('prisma') || model.includes('onix') || model.includes('palio') || model.includes('gol')) {
+    if (model.includes('corsa') || model.includes('celta') || model.includes('prisma') || model.includes('onix') || model.includes('palio') || model.includes('gol') || model.includes('astra')) {
       questions.push({
         id: 'water_pump_teeth',
         title: 'Quantos dentes possui a polia da bomba d\'água?',
-        subtitle: 'Algumas famílias de motor possuem variações de 19 dentes contra 21 ou 23 dentes.',
+        subtitle: 'Algumas famílias de motor possuem variações de dentes na polia acionada pela correia dentada.',
         iconType: 'engine',
         impactExplanation:
-          'Na linha GM Família 1 (Celta, Prisma, Corsa, Onix 1.0/1.4), a polia correta tem 19 dentes (Urba UB0155 / Schadek 20.082). Nos motores 1.8 e 2.0 a polia possui 21 ou 23 dentes. Se colocar errada, a correia dentada pula dente ou não encaixa.',
+          'Na linha GM Família 1 (Celta, Prisma, Corsa, Onix 1.0/1.4), a polia correta geralmente tem 19 dentes. Nos motores 1.8 e 2.0 (ex: Astra/Vectra/Zafira) a polia possui 21, 23 ou 25 dentes. Se colocar errada, a correia não encaixa.',
         required: true,
-        defaultSelectedId: '19_dentes',
+        defaultSelectedId: model.includes('astra') || (request.engine || '').includes('2.0') || (request.engine || '').includes('1.8') ? '21_23_dentes' : '19_dentes',
         options: [
           {
             id: '19_dentes',
             label: '19 Dentes na Polia (Motores 1.0 e 1.4 8V)',
-            description: 'Padrão original Urba UB0155 / OEM 93385834.',
+            description: 'Padrão mais comum para linha compacta 1.0/1.4.',
             badge: '1.0 / 1.4 Flex',
-            appliesToNotes: 'Polia de 19 dentes (Urba UB0155)',
+            appliesToNotes: 'Polia de 19 dentes',
           },
           {
             id: '21_23_dentes',
-            label: '21 ou 23 Dentes na Polia (Motores 1.6, 1.8 ou 2.0)',
-            description: 'Para motores maiores da linha GM Família 2.',
-            badge: '1.8 / 2.0',
-            appliesToNotes: 'Polia com 21/23 dentes',
+            label: '21, 23 ou 25 Dentes na Polia (Motores 1.6, 1.8 ou 2.0)',
+            description: 'Conferir na peça antiga para motores médios/grandes.',
+            badge: '1.6 / 1.8 / 2.0',
+            appliesToNotes: 'Polia com 21/23/25 dentes',
           },
         ],
       });
@@ -458,10 +484,25 @@ export function applyAnswersToSearchRequest(
   selectedAnswers: Record<string, string>,
   questions: PrecisionQuestion[]
 ): SearchRequest {
-  const notesTokens: string[] = [];
-  if (originalRequest.notes && originalRequest.notes.trim()) {
-    notesTokens.push(originalRequest.notes.trim());
-  }
+  const existingNotes = (originalRequest.notes || '')
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
+
+  // Remove stale contradicting AC / transmission tokens before re-applying user selections
+  const hasAcSelection = Boolean(selectedAnswers['radiator_ac']);
+  const hasTransSelection = Boolean(selectedAnswers['radiator_trans']);
+
+  const filteredNotes = existingNotes.filter((token) => {
+    const low = token.toLowerCase();
+    if (hasAcSelection && (low.includes('sem ar') || low.includes('com ar') || low.includes('ar condicionado'))) {
+      return false;
+    }
+    if (hasTransSelection && (low.includes('câmbio manual') || low.includes('cambio manual') || low.includes('câmbio automático') || low.includes('cambio automatico'))) {
+      return false;
+    }
+    return true;
+  });
 
   let finalTransmission = originalRequest.transmission || '';
 
@@ -482,18 +523,17 @@ export function applyAnswersToSearchRequest(
     }
 
     if (opt.appliesToNotes) {
-      // Avoid duplicates
       const optNoteLower = opt.appliesToNotes.toLowerCase();
-      const alreadyIncluded = notesTokens.some((t) => t.toLowerCase().includes(optNoteLower));
+      const alreadyIncluded = filteredNotes.some((t) => t.toLowerCase().includes(optNoteLower));
       if (!alreadyIncluded) {
-        notesTokens.push(opt.appliesToNotes);
+        filteredNotes.push(opt.appliesToNotes);
       }
     }
   }
 
   return {
     ...originalRequest,
-    notes: notesTokens.join(', '),
+    notes: filteredNotes.join(', '),
     transmission: finalTransmission,
   };
 }

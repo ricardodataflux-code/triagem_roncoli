@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, PhoneCall, History, Moon, Sun, RotateCcw, ShieldCheck, BookOpen } from 'lucide-react';
+import { Sparkles, History, Moon, Sun, RotateCcw, BookOpen } from 'lucide-react';
 
 interface NavbarProps {
   darkMode: boolean;
@@ -36,17 +36,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             <Sparkles className="w-4 h-4 text-emerald-300" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <span className="font-extrabold text-base sm:text-lg tracking-tight text-zinc-950 dark:text-white">
                 Triagem Roncoli
               </span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                CATÁLOGO TÉCNICO
-              </span>
             </div>
             <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 tracking-tight">
-              OEM & Referências Cruzadas para Balcão e Televendas
+              OEM & Referências Cruzadas · Balcão e Televendas
             </p>
           </div>
         </div>
@@ -59,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               id="btn-open-brand-catalog"
               type="button"
               onClick={onOpenCatalogModal}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+              className={`whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                 darkMode
                   ? 'bg-blue-950/40 hover:bg-blue-900/50 text-blue-300 border-blue-800/80 hover:border-blue-700'
                   : 'bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 shadow-2xs'
@@ -77,7 +73,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="btn-new-inquiry"
             type="button"
             onClick={onNewSearch}
-            className={`hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+            className={`whitespace-nowrap shrink-0 hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
               darkMode
                 ? 'bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border-zinc-700/80 hover:border-zinc-600'
                 : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200 hover:border-zinc-300 shadow-2xs'
@@ -93,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             id="btn-toggle-history"
             type="button"
             onClick={onToggleHistory}
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+            className={`whitespace-nowrap shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
               isHistoryOpen
                 ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-zinc-100 dark:text-zinc-950 dark:border-white'
                 : darkMode
@@ -104,7 +100,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <History className="w-3.5 h-3.5 text-zinc-500" />
             <span className="hidden md:inline">Histórico</span>
             {historyCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
+              <span className={`tabular-nums px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${
                 isHistoryOpen
                   ? 'bg-white/20 text-white dark:bg-black/20 dark:text-zinc-900'
                   : 'bg-zinc-200 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200'
@@ -113,16 +109,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             )}
           </button>
-
-          {/* Counter Service Badge */}
-          <div
-            className={`hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border ${
-              darkMode ? 'bg-zinc-900/80 border-zinc-800 text-zinc-400' : 'bg-zinc-50 border-zinc-200/80 text-zinc-600'
-            }`}
-          >
-            <PhoneCall className="w-3 h-3 text-zinc-400" />
-            <span className="text-[11px] font-medium tracking-tight">Atendimento Balcão</span>
-          </div>
 
           {/* Dark Mode Toggle */}
           <button

@@ -29,15 +29,6 @@ export const PartFollowUpChat: React.FC<PartFollowUpChatProps> = ({ partContext,
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/followup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: q,
-          partContext,
-        }),
-      });
-
       let data: any = null;
       try {
         const response = await fetch('/api/followup', {
@@ -59,31 +50,36 @@ export const PartFollowUpChat: React.FC<PartFollowUpChatProps> = ({ partContext,
         if (!response.ok || !data) {
           data = null;
         }
-      } catch (e) {
+      } catch {
         data = null;
       }
 
       if (!data) {
-        // Smart technical assistant fallback for counter support
         const car = partContext?.carSummary || 'do veículo informado';
         const part = partContext?.partSummary || 'desta peça';
         const queryLower = q.toLowerCase();
 
-        let tip = `Para ${part} no ${car}: Sempre confira no documento se o ano de fabricação bate com o ano do modelo, se o motor possui ar condicionado/direção hidráulica instalados de fábrica ou adaptação, e conte os dentes/estrias da peça antiga antes de entregar no balcão.`;
+        let tip = `Para ${part} no ${car}: Sempre confira no documento se o ano de fabricação bate com o ano do modelo, se o motor possui ar condicionado/direção hidráulica instalados de fábrica e confira as medidas na peça antiga.`;
 
         if (queryLower.includes('ar') || queryLower.includes('condicionado')) {
-          tip = `Atenção no balcão: Veículos com Ar Condicionado frequentemente utilizam correias de medidas diferentes (número de estrias PK maior), radiadores de colmeia mais espessa e compressores específicos. Confira o código gravado na peça retirada do cliente.`;
+          tip = `Atenção no balcão (${car}): Veículos com Ar Condicionado frequentemente utilizam correias maiores e radiadores com espessura diferente. Confira o código gravado na peça retirada do cliente.`;
         } else if (queryLower.includes('dente') || queryLower.includes('estria')) {
-          tip = `Dica de ouro no balcão: Sempre solicite ao mecânico ou cliente a contagem exata dos dentes da correia ou estrias do cubo/homocinética antes da retirada para evitar devolução.`;
+          tip = `Dica de balcão (${car}): Sempre solicite ao mecânico ou cliente a contagem exata dos dentes da correia ou estrias do cubo/homocinética antes da retirada.`;
         } else if (queryLower.includes('par') || queryLower.includes('jogo') || queryLower.includes('quant')) {
-          tip = `Regra de aplicação: Amortecedores, molas, discos e pastilhas de freio devem ser trocados no par (eixo dianteiro ou traseiro) para garantir estabilidade e frenagem uniforme.`;
+          tip = `Regra de aplicação (${car}): Amortecedores, molas, discos e pastilhas de freio devem ser trocados no par (mesmo eixo) para manter estabilidade e frenagem uniforme.`;
         }
 
         data = {
           answer: tip,
           sources: [
-            { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
-            { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
+            {
+              uri: `https://www.google.com/search?q=${encodeURIComponent(`site:mercadolivre.com.br ${part} ${car}`)}`,
+              title: `MercadoLivre: ${part} ${car}`,
+            },
+            {
+              uri: `https://www.google.com/search?q=${encodeURIComponent(`${part} ${car} ${q}`)}`,
+              title: `Google Search: ${part} ${car}`,
+            },
           ],
         };
       }
@@ -204,7 +200,31 @@ export const PartFollowUpChat: React.FC<PartFollowUpChatProps> = ({ partContext,
               }`}
             >
               <div className="w-3.5 h-3.5 border-2 border-zinc-900 dark:border-white border-t-transparent rounded-full animate-spin"></div>
-              <span>Consultando catálogos e variações no Google...</span>
+              <span>Consultando Google e MercadoLivre...</span>
+            </div>
+          )}
+
+          {sources.length > 0 && !isLoading && (
+            <div className="pt-1 flex flex-wrap items-center gap-1.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mr-1">
+                Fontes:
+              </span>
+              {sources.slice(0, 4).map((src, i) => (
+                <a
+                  key={i}
+                  href={src.uri}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] font-medium transition-colors ${
+                    darkMode
+                      ? 'bg-zinc-800/70 border-zinc-700 text-zinc-300 hover:text-white'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:text-black'
+                  }`}
+                >
+                  <span className="max-w-[180px] truncate">{src.title}</span>
+                  <ExternalLink className="w-2.5 h-2.5 text-zinc-400 shrink-0" />
+                </a>
+              ))}
             </div>
           )}
         </div>

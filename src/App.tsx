@@ -5,19 +5,16 @@ import { PartResultCard } from './components/PartResultCard';
 import { PartFollowUpChat } from './components/PartFollowUpChat';
 import { SearchHistorySidebar } from './components/SearchHistorySidebar';
 import { OfficialCatalogModal } from './components/OfficialCatalogModal';
-import { SearchRequest, SearchResult } from './types';
-import { findOfflinePart, generateSmartFallbackPart } from './data/offlineCatalog';
-import { getRioClaroSuppliersForPart } from './data/rioClaroSuppliers';
+import { SearchRequest, SearchResult, DirectSearchLink } from './types';
 import {
   Sparkles,
   PhoneCall,
-  Search,
-  CheckCircle2,
   AlertCircle,
-  Copy,
   MessageSquare,
   ShieldCheck,
   Zap,
+  ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 
 const STORAGE_KEY_HISTORY = 'autopecas_ia_history_v1';
@@ -47,6 +44,8 @@ export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorLinks, setErrorLinks] = useState<DirectSearchLink[]>([]);
+  const [lastRequest, setLastRequest] = useState<SearchRequest | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [isCatalogModalOpen, setIsCatalogModalOpen] = useState<boolean>(false);
   const [formResetKey, setFormResetKey] = useState<number>(0);
@@ -75,66 +74,64 @@ export default function App() {
     }
   }, [darkMode]);
 
+  const buildFallbackDirectLinks = (req: SearchRequest): DirectSearchLink[] => {
+    const query = `${req.part} ${req.model} ${req.year || ''} ${req.engine || ''} ${req.transmission || ''} ${req.notes || ''}`
+      .replace(/\s+/g, ' ')
+      .trim();
+    const mlSlug = query
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+    return [
+      {
+        label: 'Buscar no MercadoLivre',
+        url: `https://lista.mercadolivre.com.br/${mlSlug}`,
+        type: 'marketplace',
+      },
+      {
+        label: 'Pesquisar no Google',
+        url: `https://www.google.com/search?q=${encodeURIComponent(`${query} catalogo fabricante codigo oem`)}`,
+        type: 'google',
+      },
+    ];
+  };
+
   const handleSearch = async (request: SearchRequest) => {
     setIsLoading(true);
     setError(null);
+    setErrorLinks([]);
+    setLastRequest(request);
 
     try {
+      const res = await fetch('/api/search-part', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+
+      const text = await res.text();
       let data: any = null;
       try {
-        const res = await fetch('/api/search-part', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(request),
-        });
-
-        const text = await res.text();
-        try {
-          data = JSON.parse(text);
-        } catch {
-          // Response is not JSON
-        }
-
-        if (!res.ok || !data) {
-          console.warn('API returned non-OK or non-JSON response from server, activating catalog fallback:', text);
-          data = null;
-        }
-      } catch (networkErr) {
-        console.warn('Network or server unreachable, activating local catalog fallback:', networkErr);
+        data = JSON.parse(text);
+      } catch {
         data = null;
       }
 
-      // If backend failed or was unreachable, immediately resolve via offline/smart catalog
-      if (!data) {
-        const offlineMatch =
-          findOfflinePart(request.part, request.model, request.engine, request.notes) ||
-          generateSmartFallbackPart(request.part, request.model, request.year, request.engine, request.notes);
-        const suppliers = getRioClaroSuppliersForPart(offlineMatch.partSummary, offlineMatch.category);
-
-        data = {
-          id: `contingency-${Date.now()}`,
-          timestamp: Date.now(),
-          query: request,
-          carSummary: offlineMatch.carSummary,
-          partSummary: offlineMatch.partSummary,
-          category: offlineMatch.category,
-          quantityUsedInVehicle: offlineMatch.quantityUsedInVehicle,
-          oemCodes: offlineMatch.oemCodes,
-          aftermarketCodes: offlineMatch.aftermarketCodes,
-          technicalSpecs: offlineMatch.technicalSpecs,
-          applicationWarnings: offlineMatch.applicationWarnings,
-          complementaryParts: offlineMatch.complementaryParts,
-          quickSalesPitch: offlineMatch.quickSalesPitch,
-          whatsappMessage: offlineMatch.whatsappMessage,
-          suppliersRioClaro: suppliers,
-          groundingSources: [
-            { uri: 'https://catalogo.nakata.com.br', title: 'Catálogo Nakata' },
-            { uri: 'https://catalogo.cofap.com.br', title: 'Catálogo Cofap' },
-            { uri: 'https://www.luk.com.br', title: 'Catálogo Schaeffler LUK' },
-            { uri: 'https://www.boschaftermarket.com/br', title: 'Catálogo Bosch' },
-          ],
-          searchQueries: [request.part, request.model],
-        };
+      if (!res.ok || !data || data.error) {
+        setActiveResult(null);
+        setErrorLinks(
+          Array.isArray(data?.directLinks) && data.directLinks.length > 0
+            ? data.directLinks
+            : buildFallbackDirectLinks(request)
+        );
+        setError(
+          data?.error ||
+            'Não foi possível obter uma referência confirmada no Google e no MercadoLivre para este veículo neste momento.'
+        );
+        return;
       }
 
       const sanitizedData = cleanResultWarnings(data);
@@ -161,7 +158,11 @@ export default function App() {
       }, 100);
     } catch (err: any) {
       console.error('Search error:', err);
-      setError(err?.message || 'Falha ao conectar com o serviço de pesquisa de peças.');
+      setActiveResult(null);
+      setErrorLinks(buildFallbackDirectLinks(request));
+      setError(
+        err?.message || 'Falha de conexão com o serviço de pesquisa. Utilize os links diretos abaixo ou tente novamente.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -170,6 +171,8 @@ export default function App() {
   const handleNewSearch = () => {
     setActiveResult(null);
     setError(null);
+    setErrorLinks([]);
+    setLastRequest(null);
     setFormResetKey((prev) => prev + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -234,16 +237,10 @@ export default function App() {
             <button
               type="button"
               onClick={() => setIsCatalogModalOpen(true)}
-              className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
+              className="whitespace-nowrap shrink-0 font-mono text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors"
             >
-              📋 Ver Linha Homologada
+              Ver Linha Homologada
             </button>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hidden sm:inline-block">
-              Cópia Instantânea
-            </span>
-            <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 hidden sm:inline-block">
-              WhatsApp Pronto
-            </span>
           </div>
         </div>
 
@@ -286,28 +283,50 @@ export default function App() {
             <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/60 flex items-center justify-center shrink-0 border border-red-200 dark:border-red-800">
               <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
             </div>
-            <div className="space-y-2 flex-1">
+            <div className="space-y-2.5 flex-1">
               <h4 className="text-sm font-bold text-red-900 dark:text-red-200">
                 {error.includes('429') || error.toLowerCase().includes('cota')
-                  ? 'Limite Temporário de Cota da API (Erro 429)'
-                  : 'Não foi possível consultar a peça no momento'}
+                  ? 'Limite Temporário de Consultas Online (Erro 429)'
+                  : 'Não foi possível confirmar a referência desta peça'}
               </h4>
               <p className="text-xs opacity-90 leading-relaxed">{error}</p>
-              
-              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
+
+              <div className="pt-1 flex flex-wrap items-center gap-2 text-xs">
                 <button
                   type="button"
                   onClick={() => {
-                    setError(null);
+                    if (lastRequest) {
+                      handleSearch(lastRequest);
+                    } else {
+                      setError(null);
+                    }
                   }}
-                  className={`px-3 py-1.5 rounded-lg font-bold border transition-colors ${
+                  className={`whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-colors ${
                     darkMode
                       ? 'bg-red-900/60 border-red-700 text-white hover:bg-red-800'
-                      : 'bg-red-600 hover:bg-red-700 text-white shadow-2xs'
+                      : 'bg-red-600 hover:bg-red-700 text-white border-red-700 shadow-2xs'
                   }`}
                 >
+                  <RotateCcw className="w-3.5 h-3.5" />
                   Tentar novamente
                 </button>
+
+                {errorLinks.slice(0, 3).map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`whitespace-nowrap shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-semibold border transition-colors ${
+                      darkMode
+                        ? 'bg-zinc-900 border-zinc-700 text-zinc-200 hover:bg-zinc-800'
+                        : 'bg-white border-zinc-300 text-zinc-900 hover:bg-zinc-100 shadow-2xs'
+                    }`}
+                  >
+                    <span>{link.label}</span>
+                    <ExternalLink className="w-3 h-3 text-zinc-400" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>

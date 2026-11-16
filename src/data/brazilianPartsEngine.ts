@@ -1346,27 +1346,45 @@ export function matchBrazilianPart(
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9]/g, ' ')
+      .replace(/[^a-z0-9.]/g, ' ')
+      .replace(/\s+/g, ' ')
       .trim();
 
+  const hasToken = (haystack: string, tokenRaw: string) => {
+    const token = norm(tokenRaw);
+    if (!token) return false;
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(?:^|\\s)${escaped}(?:$|\\s)`).test(haystack);
+  };
+
   const pNorm = norm(partQuery);
-  const mNorm = norm(`${modelQuery} ${engineQuery || ''} ${notesQuery || ''}`);
+  const modelOnlyNorm = norm(modelQuery);
+  const fullNorm = norm(`${modelQuery} ${engineQuery || ''} ${notesQuery || ''}`);
+  const engineNorm = norm(engineQuery || '');
 
   for (const item of BRAZILIAN_CATALOG_DATABASE) {
-    // 1. Verifica modelo
-    const modelMatched = item.models.some((m) => mNorm.includes(norm(m)));
+    // 1. Verifica modelo estritamente no nome do veículo informado (com fronteira de palavra)
+    const modelMatched = item.models.some((m) => hasToken(modelOnlyNorm, m));
     if (!modelMatched) continue;
 
-    // 2. Verifica peça
-    const partMatched = item.partTypes.some((pt) => pNorm.includes(norm(pt)));
+    // 2. Verifica peça com fronteira de palavra
+    const partMatched = item.partTypes.some((pt) => hasToken(pNorm, pt) || pNorm.includes(norm(pt)));
     if (!partMatched) continue;
 
-    // 3. Se tiver filtro de motor, confere se bate
-    if (item.engines && item.engines.length > 0) {
-      const hasAnyEngineKeyword = item.engines.some((e) => mNorm.includes(norm(e)) || pNorm.includes(norm(e)));
-      // Se não especificou motor, permite passar se o modelo casar bem
-      if (!hasAnyEngineKeyword && (mNorm.includes('flex') || mNorm.includes('fire') || mNorm.includes('rocam') || mNorm.includes('ea111'))) {
-        continue;
+    // 3. Evitar cruzar eixo dianteiro vs traseiro se especificado
+    if (pNorm.includes('traseir') && !item.partTypes.some((pt) => pt.includes('traseir')) && !norm(item.record.partSummary).includes('traseir')) {
+      continue;
+    }
+
+    // 4. Se o usuário informou cilindrada (ex: 1.0, 1.4, 1.6, 1.8, 2.0), garante que bate com a lista do registro
+    if (engineNorm && item.engines && item.engines.length > 0) {
+      const requestedDisplacement = engineNorm.match(/\b(1\.0|1\.4|1\.5|1\.6|1\.8|2\.0|2\.4|2\.8|3\.0)\b/);
+      const recordHasDisplacements = item.engines.some((e) => /\b\d\.\d\b/.test(e));
+      if (requestedDisplacement && recordHasDisplacements) {
+        const disp = requestedDisplacement[1];
+        if (!item.engines.some((e) => e.includes(disp))) {
+          continue;
+        }
       }
     }
 
